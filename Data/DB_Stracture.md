@@ -3,7 +3,8 @@
 - [Agents](#2---agents)
 - [Projects](#3---projects)
 - [Data](#4---data)
-- [Live_Data](#5---livedata)
+- [Leads](#5---Leads)
+- [Leads](#5---Leads)
 
 # Tables Details
 
@@ -23,7 +24,6 @@ CREATE TABLE "Sources" (
   	"active" intger DEFAULT 1 ,
   	"timestamp" bigint not NULL 
 );
-
 ```
 
 ####  2 - Agents 
@@ -42,7 +42,6 @@ CREATE TABLE "Agents" (
   	"active" intger DEFAULT 1 ,
   	"timestamp" bigint not NULL 
 );
-
 ```
 
 
@@ -62,7 +61,6 @@ CREATE TABLE "Projects" (
   	"active" intger DEFAULT 1 ,
   	"timestamp" bigint not NULL 
 );
-
 ```
 
 ####  4 - Data
@@ -85,11 +83,10 @@ CREATE TABLE "Data" (
   	"registered" intger DEFAULT 0 ,
   	"timestamp" bigint not NULL 
 );
-
 ```
 
 
-#### 5 - Live_Data
+#### 5 - Leads
 
 - agent_id
 - number
@@ -101,7 +98,7 @@ CREATE TABLE "Data" (
 
 ===> Query :
 ```sql
-CREATE TABLE "Live_Data"(
+CREATE TABLE "Leads"(
 	"agent_id" intger not NULL REFERENCES "Agents"("id") DEFERRABLE INITIALLY DEFERRED ,
   	"number" varchar(20) NOT NULL ,
   	"name" varchar(30) NULL ,
@@ -110,5 +107,23 @@ CREATE TABLE "Live_Data"(
   	"description" varchar(500) NULL ,
   	"timestamp" bigint NOT NULL 
 );
+```                                                
 
-```
+#### 6 - Live_Data
+
+- agent_id
+- number
+- project_id
+- source_id
+- timestamp
+
+===> Query :
+```sql
+CREATE TABLE "Live_Data"(
+	"agent_id" intger not NULL REFERENCES "Agents"("id") DEFERRABLE INITIALLY DEFERRED ,
+  	"number" varchar(20) NOT NULL ,
+  	"project_id" intger not NULL REFERENCES "Projects"("id") DEFERRABLE INITIALLY DEFERRED ,
+  	"source_id" intger not NULL REFERENCES "Sources"("id") DEFERRABLE INITIALLY DEFERRED ,
+  	"timestamp" bigint NOT NULL 
+);
+```                                                
