@@ -1,7 +1,6 @@
 from pandas import DataFrame , read_sql_query
 from PyQt5.QtCore import QObject
 from utils import (
-    replace_value_with_id ,
     merge_lists_to_dict ,
 )
 import sqlite3 , typing
@@ -10,25 +9,28 @@ import sqlite3 , typing
 
 class Table(DataFrame,QObject):
 
-    def __init__(self,table_name:str,con:sqlite3.Connection,) -> None:
+    def __init__(self,table_name:str,con:sqlite3.Connection,fake_relations:typing.Dict[str,dict]={},original_relations:typing.Dict[str,dict]={}) -> None:
         super(Table,self).__init__()
         self.table_name = table_name
         self.con = con
+        self.fake_relations = fake_relations
+        # self.original_relations = original_relations
         self.__dict__ = read_sql_query(f"SELECT * FROM {table_name}",con).__dict__
+        self.__reverse(fake_relations) if fake_relations != {} else None
 
 
-    def get_original(self,relations:typing.Dict[str,dict]={})-> DataFrame :
-        data = self.copy()
-        for column in self.columns :
-            if column.endswith("_id") and column.replace("_id","") in relations.keys() :
-                data[column] = data[column].map(relations[column.replace("_id","")])
-        print(data)
+    # def set_original(self):
+    #     self.__reverse(self.original_relations)
 
     def get_relations(self)-> dict:
         return merge_lists_to_dict(self[self.columns[0]].to_list(),self[self.columns[1]].to_list())
 
-    
-
+    def __reverse(self,relations:typing.Dict[str,dict])-> None :
+        for column in self.columns :
+            col_formatter = f"""{column.replace("_id","")}s"""
+            if column.endswith("_id") and col_formatter in relations.keys() :
+                self[column] = self[column].map(relations[col_formatter])
+                
 
 class DataReader(QObject):
     
@@ -105,10 +107,11 @@ from _constants import LIVE_DATA , AGENTS , SOURCES , PROJECTS , DATA
 connection = sqlite3.connect("Data\database.db")
 
 tt = Table(SOURCES,connection)
-t2 = Table(DATA,connection)
-
-t2.get_original({
+t2 = Table(DATA,connection,fake_relations={
     SOURCES.lower() : tt.get_relations()
 })
-# print(tt)
+print(tt)
+
+# t2.set_original()
+print(t2)
 
