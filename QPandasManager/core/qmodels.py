@@ -8,7 +8,7 @@ class TableModelView(QAbstractTableModel):
     message = pyqtSignal(str)
     def __init__(self, columns:typing.List[str]):
         super().__init__()
-        self._data = pandas.DataFrame(columns=columns) 
+        self._data = pandas.DataFrame(columns=columns)
 
     @property
     def columns(self):

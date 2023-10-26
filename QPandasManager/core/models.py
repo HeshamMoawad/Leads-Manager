@@ -4,6 +4,15 @@ import sqlite3
 
 
 
+class Table(DataFrame):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    
+
+
+
 
 class DataReader(QObject):
     
