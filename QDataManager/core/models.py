@@ -4,9 +4,27 @@ from utils import (
     merge_lists_to_dict ,
 )
 import sqlite3 , typing
+from PyQt5.QtSql import QSqlTableModel , QSqlQuery
 
 
+class QueryModel(QSqlTableModel) :
 
+    def __init__(self) -> None:
+        super().__init__()
+        self.__queryset = ""
+
+    def get_query(self)->str:
+        return self.__queryset
+    
+    def set_query(self,query:str) -> None:
+        self.__queryset = query
+        return super().setQuery(QSqlQuery(self.__queryset))
+    
+    def clear(self) -> None:
+        self.__queryset = ""
+        return super().clear()
+
+    
 class Table(DataFrame,QObject):
 
     def __init__(self,table_name:str,con:sqlite3.Connection,fake_relations:typing.Dict[str,dict]={},original_relations:typing.Dict[str,dict]={}) -> None:
@@ -14,13 +32,9 @@ class Table(DataFrame,QObject):
         self.table_name = table_name
         self.con = con
         self.fake_relations = fake_relations
-        # self.original_relations = original_relations
         self.__dict__ = read_sql_query(f"SELECT * FROM {table_name}",con).__dict__
         self.__reverse(fake_relations) if fake_relations != {} else None
 
-
-    # def set_original(self):
-    #     self.__reverse(self.original_relations)
 
     def get_relations(self)-> dict:
         return merge_lists_to_dict(self[self.columns[0]].to_list(),self[self.columns[1]].to_list())
