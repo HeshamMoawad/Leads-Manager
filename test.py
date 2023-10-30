@@ -78,121 +78,39 @@
 # db.close()
 
 
-import sys
-from PyQt5 import QtGui, QtCore , QtWidgets
+from PyQt5.QtSql import QSqlDatabase, QSqlRelationalTableModel, QSqlRelation , QSqlQuery
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView
 
-class Window(QtWidgets.QMainWindow):
+app = QApplication([])
 
-    def __init__(self):
-        super(Window, self).__init__()
-        self.setGeometry(50, 50, 500, 300)
-        self.setWindowTitle("PyQT tuts!")
-        self.setWindowIcon(QtGui.QIcon('pythonlogo.png'))
+# Create a connection to the database
+db = QSqlDatabase.addDatabase("QSQLITE")
+db.setDatabaseName("Data\database.db")
+db.open()
 
-        extractAction = QtWidgets.QAction("&GET TO THE CHOPPAH!!!", self)
-        extractAction.setShortcut("Ctrl+Q")
-        extractAction.setStatusTip('Leave The App')
-        extractAction.triggered.connect(self.close_application)
+# Create the relational table model
+model = QSqlRelationalTableModel()
+model.setTable("Live_Data")
+model.setRelation(0, QSqlRelation("Agents", "id", "agent_name")) 
+model.setRelation(2, QSqlRelation("Projects", "id", "project_name")) 
+model.setRelation(3, QSqlRelation("Sources", "id", "source_name")) 
 
-        self.statusBar()
+t = model.relationModel(0)
+t.setFilter('agent_name = "name 2"')
+t.select()
 
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('&File')
-        fileMenu.addAction(extractAction)
-        
-        self.home()
+print(model.relationModel(0).filter())
 
-    def home(self):
-        btn = QtWidgets.QPushButton("Quit", self)
-        btn.clicked.connect(self.close_application)
-        btn.resize(btn.minimumSizeHint())
-        btn.move(0,100)
+# Populate the model with data
+# model.select()
 
-        extractAction = QtWidgets.QAction(QtGui.QIcon('todachoppa.png'), 'Flee the Scene', self)
-        extractAction.triggered.connect(self.close_application)
-        
-        self.toolBar = self.addToolBar("Extraction")
-        self.toolBar.addAction(extractAction)
+# Create a view to display the table
+view = QTableView()
+view.setModel(model)
 
-        checkBox = QtWidgets.QCheckBox('Shrink Window', self)
-        checkBox.move(100, 25)
-        checkBox.stateChanged.connect(self.enlarge_window)
+# Show the main window
+window = QMainWindow()
+window.setCentralWidget(view)
+window.show()
 
-        self.progress = QtWidgets.QProgressBar(self)
-        self.progress.setGeometry(200, 80, 250, 20)
-
-        self.btn = QtWidgets.QPushButton("Download",self)
-        self.btn.move(200,120)
-        self.btn.clicked.connect(self.download)
-
-        print(self.style().objectName())
-        self.styleChoice = QtWidgets.QLabel("Windows Vista", self)
-
-
-
-        comboBox = QtWidgets.QComboBox(self)
-        comboBox.addItem("motif")
-        comboBox.addItem("Windows")
-        comboBox.addItem("cde")
-        comboBox.addItem("Plastique")
-        comboBox.addItem("Cleanlooks")
-        comboBox.addItem("windowsvista")
-        comboBox.move(50, 250)
-        
-        model = comboBox.model()
-        for row in range(10):
-            item = QtGui.QStandardItem(str(row))
-        
-            item.setForeground(QtGui.QColor('red'))
-            font = item.font()
-            font.setPointSize(10)
-            item.setFont(font)
-            model.appendRow(item)
-
-        self.styleChoice.move(50,150)
-        comboBox.activated[str].connect(self.style_choice)
-
-        self.show()
-
-
-    def style_choice(self, text):
-        self.styleChoice.setText(text)
-        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create(text))
-
-
-    def download(self):
-        self.completed = 0
-
-        while self.completed < 100:
-            self.completed += 0.0001
-            self.progress.setValue(self.completed)
-        
-        
-
-    def enlarge_window(self, state):
-        if state == QtCore.Qt.Checked:
-            self.setGeometry(50,50, 1000, 600)
-        else:
-            self.setGeometry(50, 50, 500, 300)
-        
-
-    def close_application(self):
-        choice = QtWidgets.QMessageBox.question(self, 'Extract!',
-                                            "Get into the chopper?",
-                                            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-        if choice == QtWidgets.QMessageBox.Yes:
-            print("Extracting Naaaaaaoooww!!!!")
-            sys.exit()
-        else:
-            pass
-        
-
-    
-def run():
-    app = QtWidgets.QApplication(sys.argv)
-    app.setStyle(QtWidgets.QStyleFactory.create('windowsvista'))
-    GUI = Window()
-    sys.exit(app.exec_())
-
-
-run()
+app.exec_()

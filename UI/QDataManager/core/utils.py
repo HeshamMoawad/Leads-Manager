@@ -14,3 +14,5 @@ def convert_tuple_to_query(tuple:tuple):
 
 def only_column(string:str):
     return string.split(".")[-1]
+
+

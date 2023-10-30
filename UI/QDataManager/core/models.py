@@ -1,6 +1,6 @@
 from pandas import DataFrame , read_sql_query
 from PyQt5.QtCore import QObject
-from utils import (
+from .utils import (
     merge_lists_to_dict ,
 )
 import sqlite3 , typing
@@ -116,16 +116,21 @@ class DataReader(QObject):
             con = self.connection
         )
 
-from _constants import LIVE_DATA , AGENTS , SOURCES , PROJECTS , DATA
 
-connection = sqlite3.connect("Data\database.db")
+    def close(self):
+        self.connection.close()
+    
 
-tt = Table(SOURCES,connection)
-t2 = Table(DATA,connection,fake_relations={
-    SOURCES.lower() : tt.get_relations()
-})
-print(tt)
+# from _constants import LIVE_DATA , AGENTS , SOURCES , PROJECTS , DATA
 
-# t2.set_original()
-print(t2)
+# connection = sqlite3.connect("Data\database.db")
+
+# tt = Table(SOURCES,connection)
+# t2 = Table(DATA,connection,fake_relations={
+#     SOURCES.lower() : tt.get_relations()
+# })
+# print(tt)
+
+# # t2.set_original()
+# print(t2)
 

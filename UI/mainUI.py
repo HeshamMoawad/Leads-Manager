@@ -10,7 +10,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qmodels import MyQMainWindow
+from addleadspage import AddLeadsPage
+from PyQt5.QtSql import QSqlRelationalTableModel , QSqlRelation
 
+QSS = open('assets\qss\main.qss','r').read()
 
 class MainWindow(MyQMainWindow):
     def SetupUi(self):
@@ -18,9 +21,10 @@ class MainWindow(MyQMainWindow):
         self.resize(800, 700)
         self.setFrameLess()
         self.setBackgroundTransparent()
+        self.mainWidget.setStyleSheet(QSS)
         self.widget = QtWidgets.QWidget(self.mainWidget)
         self.widget.setGeometry(QtCore.QRect(0, -1, 801, 701))
-        self.widget.setObjectName("widget")
+        self.widget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -99,14 +103,7 @@ class MainWindow(MyQMainWindow):
         self.verticalLayout.addWidget(self.headerFrame)
         self.stackedWidget = QtWidgets.QStackedWidget(self.widget)
         self.stackedWidget.setObjectName("stackedWidget")
-        self.page = QtWidgets.QWidget()
-        self.page.setObjectName("page")
-        self.stackedWidget.addWidget(self.page)
-        self.page_2 = QtWidgets.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stackedWidget.addWidget(self.page_2)
         self.verticalLayout.addWidget(self.stackedWidget)
-        self.stackedWidget.setCurrentIndex(0)
         self.group = QtWidgets.QButtonGroup(self.midFrame)
         self.group.addButton(self.addLeadsBtnPage )
         self.group.addButton(self.sheetsBtnPage )
@@ -114,14 +111,43 @@ class MainWindow(MyQMainWindow):
         self.group.addButton(self.managerDataBtnPage )
         self.group.addButton(self.queryBtnPage )
         self.group.addButton(self.chartBtnPage )
-        self.group.buttonClicked.connect(lambda : self.stackedWidget.setCurrentIndex((self.group.checkedId()*-1)-2))#.checkedId()
+        self.group.buttonClicked.connect(lambda : self.stackedWidget.setCurrentIndex((self.group.checkedId()*-1)-2))
         self.addLeadsBtnPage.setChecked(True)
-        super().SetupUi()
+        self.addleadspage = AddLeadsPage()
+        self.stackedWidget.insertWidget(0,self.addleadspage)
+        self.exitBtn.setAutoRaise(True)
+        self.minimizeBtn.setAutoRaise(True)
+        self.exitBtn.setIcon(QtGui.QIcon("assets\icons\\black-exit.png"))
+        self.exitBtn.setIconSize(QtCore.QSize(14,14))
+        self.exitBtn.setFixedSize(QtCore.QSize(24,24))
+        self.minimizeBtn.setIcon(QtGui.QIcon("assets\icons\\black-minus.png"))
+        self.minimizeBtn.setIconSize(QtCore.QSize(20,20))
+        self.minimizeBtn.setFixedSize(QtCore.QSize(24,24))
+        self.exitBtn.clicked.connect(self.close)
+        self.minimizeBtn.clicked.connect(self.showMinimized)
+        #####
+        self.addLeadsBtnPage.setIcon(QtGui.QIcon('assets\icons\home.png'))
+        self.sheetsBtnPage.setIcon(QtGui.QIcon('assets\icons\sheets.png'))
+        self.reportBtnPage.setIcon(QtGui.QIcon('assets\icons\\report.png'))
+        self.managerDataBtnPage.setIcon(QtGui.QIcon('assets\icons\data-manager.png'))
+        self.queryBtnPage.setIcon(QtGui.QIcon('assets\icons\query.png'))
+        self.chartBtnPage.setIcon(QtGui.QIcon('assets\icons\charts.png'))
+        #####
+        self.addLeadsBtnPage.setFixedSize(24,24)
+        self.sheetsBtnPage.setFixedSize(24,24)
+        self.reportBtnPage.setFixedSize(24,24)
+        self.managerDataBtnPage.setFixedSize(24,24)
+        self.queryBtnPage.setFixedSize(24,24)
+        self.chartBtnPage.setFixedSize(24,24)
 
+
+        self.stackedWidget.setCurrentIndex(0)
+        super().SetupUi()
 
 
 
 
 if __name__ == "__main__":
     ui = MainWindow()
+    ui.setAppStyle('Fusion')
     ui.show()

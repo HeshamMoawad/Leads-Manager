@@ -1,10 +1,13 @@
 from PyQt5.QtWidgets import (
+    QLineEdit,
     QMainWindow , 
     QApplication ,
     QMessageBox , 
     QWidget
     )
 from PyQt5.QtCore import (
+    QRect,
+    pyqtProperty,
     Qt,
     QEvent,
     pyqtSignal,
@@ -12,6 +15,7 @@ from PyQt5.QtCore import (
     )
 from PyQt5.QtGui import QIcon
 import typing , sys
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 
@@ -78,7 +82,7 @@ class MyQMainWindow(QMainWindow):
         self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
 
     def setBackgroundTransparent(self):
-        self.mainWidget.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
     def SetupUi(self):
         """the method that will run Automaticly with calling class"""
@@ -101,5 +105,67 @@ class MyQMainWindow(QMainWindow):
             self.drag_start_position = event.pos()
 
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.move(self.mapToParent(event.pos() - self.drag_start_position))
+        try:
+            if event.buttons() == Qt.LeftButton:
+                self.move(self.mapToParent(event.pos() - self.drag_start_position))
+        except : ...
+        
+    def setAppStyle(self,style:str):
+        self.App.setStyle(style)
+
+
+
+class AnimatedLineEdit(QLineEdit):
+    def __init__(self,parent:QWidget=None):
+        super().__init__(parent)
+        self.__size = self.size()
+
+    @pyqtProperty(QSize)
+    def Size(self):
+        return self.__size
+
+    @Size.setter
+    def Size(self,size:QSize):
+        self.__size = size
+        self.setFixedSize(self.__size)
+
+    
+
+
+class SearchBar(QtWidgets.QWidget):
+    def __init__(self,parent:QWidget=None):
+        super().__init__(parent)
+        self.setObjectName("SearchBar")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setSpacing(0)
+        self.toolButton = QtWidgets.QToolButton(self)
+        self.toolButton.setCheckable(True)
+        self.toolButton.setObjectName("SearchBar_toolButton")
+        self.horizontalLayout.addWidget(self.toolButton,alignment=Qt.AlignmentFlag.AlignLeft)
+        self.lineEdit = AnimatedLineEdit(self)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.lineEdit.setSizePolicy(sizePolicy)
+        self.lineEdit.setMaxLength(50)
+        self.lineEdit.setObjectName("SearchBar_lineEdit")
+        self.horizontalLayout.addWidget(self.lineEdit,alignment=Qt.AlignmentFlag.AlignLeft)
+        self.horizontalLayout.setStretch(1, 1)
+        self.animation = QtCore.QPropertyAnimation(self.lineEdit,b'Size')
+        self.animation.setEasingCurve(QtCore.QEasingCurve.Type.InOutSine)
+        self.animation.setDuration(700)
+        self.toolButton.clicked.connect(self.animate)
+        self.animation.setStartValue(QSize(0,0))
+        
+
+    def setEndAnimate(self,size:QSize):
+        self.animation.setEndValue(size)
+        self.lineEdit.setFixedSize(QSize(0,0))
+        self.toolButton.setFixedSize(QSize(size.height(),size.height()))
+
+    def animate(self):
+        if self.toolButton.isChecked():
+            self.animation.setDirection(self.animation.Direction.Forward)
+            self.animation.start()
+        else :
+            self.animation.setDirection(self.animation.Direction.Backward)
+            self.animation.start()
