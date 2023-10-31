@@ -11,7 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qmodels import MyQMainWindow
 from addleadspage import AddLeadsPage
-from PyQt5.QtSql import QSqlRelationalTableModel , QSqlRelation
+from sheetspage import SheetsPage
+from managedatapage import ManagerDataPage
+from querypage import QueryPage
+from reportpage import ReportPage
+# from PyQt5.QtSql import QSqlRelationalTableModel , QSqlRelation
 
 QSS = open('assets\qss\main.qss','r').read()
 
@@ -113,8 +117,18 @@ class MainWindow(MyQMainWindow):
         self.group.addButton(self.chartBtnPage )
         self.group.buttonClicked.connect(lambda : self.stackedWidget.setCurrentIndex((self.group.checkedId()*-1)-2))
         self.addLeadsBtnPage.setChecked(True)
-        self.addleadspage = AddLeadsPage()
+
+        self.addleadspage = AddLeadsPage(self)
         self.stackedWidget.insertWidget(0,self.addleadspage)
+        self.sheetspage = SheetsPage(self)
+        self.stackedWidget.insertWidget(1,self.sheetspage)
+        self.reportpage = ReportPage(self)
+        self.stackedWidget.insertWidget(2,self.reportpage)
+        self.managerdatapage = ManagerDataPage(self)
+        self.stackedWidget.insertWidget(3,self.managerdatapage)
+        self.querypage = QueryPage(self)
+        self.stackedWidget.insertWidget(4,self.querypage)
+
         self.exitBtn.setAutoRaise(True)
         self.minimizeBtn.setAutoRaise(True)
         self.exitBtn.setIcon(QtGui.QIcon("assets\icons\\black-exit.png"))
@@ -141,7 +155,7 @@ class MainWindow(MyQMainWindow):
         self.chartBtnPage.setFixedSize(24,24)
 
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(1)
         super().SetupUi()
 
 

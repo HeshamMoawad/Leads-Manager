@@ -1,8 +1,57 @@
+
 #centralwidget{
     background-color:#dadada;
     border:2px solid #dadada;
     border-radius:25px;
 }
+
+
+QToolButton{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:11px;
+
+}
+
+QTextEdit{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:12px;
+
+}
+
+
+
+
+QComboBox {
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+}
+
+
+QComboBox:drop-down{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+}
+
+QComboBox QAbstractItemView{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+} 
+
+QTableView{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:20px;
+}
+
+
+
+
+
 
 #exitBtn , #minimizeBtn{
     background-color:#ededed;
@@ -67,28 +116,4 @@
     border-radius:25px;
 }
 
-QComboBox {
-    background-color:#ededed;
-    border:1px solid #ededed;
-    border-radius:5px;
-}
-
-
-QComboBox:drop-down{
-    background-color:#ededed;
-    border:1px solid #ededed;
-    border-radius:5px;
-}
-
-QComboBox QAbstractItemView{
-    background-color:#ededed;
-    border:1px solid #ededed;
-    border-radius:5px;
-} 
-
-QTableView{
-    background-color:#ededed;
-    border:1px solid #ededed;
-    border-radius:20px;
-}
 

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import (
+    QCalendarWidget,
     QLineEdit,
     QMainWindow , 
     QApplication ,
@@ -169,3 +170,29 @@ class SearchBar(QtWidgets.QWidget):
         else :
             self.animation.setDirection(self.animation.Direction.Backward)
             self.animation.start()
+
+
+class Calendar(QWidget):
+    Clicked = pyqtSignal()
+    def __init__(self, parent: typing.Optional['QWidget'] = None) -> None:
+        super().__init__(parent)
+        self.setGeometry(QtCore.QRect(500, 500, 274, 230))
+        self.setObjectName("Calendar")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.calendarWidget = QtWidgets.QCalendarWidget(self)
+        self.calendarWidget.setObjectName("calendarWidget")
+        self.verticalLayout.addWidget(self.calendarWidget)
+        self.pushButton = QtWidgets.QPushButton(self)
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.setText("OK")
+        self.verticalLayout.addWidget(self.pushButton)
+        self.pushButton.clicked.connect(self.Clicked.emit)
+        self.pushButton.clicked.connect(self.close)
+        self.value = self.calendarWidget.selectedDate()
+
+    def close(self) -> bool:
+        self.value = self.calendarWidget.selectedDate()
+        return super().close()
+

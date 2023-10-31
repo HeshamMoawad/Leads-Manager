@@ -14,8 +14,8 @@ from QDataManager.core.models import DataReader
 
 
 class AddLeadsPage(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent:QtWidgets.QWidget=None):
+        super().__init__(parent)
         self.reader = DataReader()
         self.setObjectName("AddLeadsPage")
         self.resize(783, 607)
@@ -88,14 +88,21 @@ class AddLeadsPage(QtWidgets.QWidget):
         self.addButton.setIcon(QtGui.QIcon("assets\icons\\add.png"))
         self.addButton.setIconSize(QtCore.QSize(50,50))
         self.horizontalLayout_2.addWidget(self.addButton)
+        font = QtGui.QFont()
+        font.setItalic(True)
+        font.setPointSize(10)
+        font.setFamily("Narkisim")
         self.signeture = QtWidgets.QLabel(self.frame_4)
         self.signeture.setText("MarCode")
+        self.signeture.setFont(font)
         self.signeture.setObjectName("signeture")
         self.horizontalLayout_2.addWidget(self.signeture, 0, QtCore.Qt.AlignRight|QtCore.Qt.AlignBottom)
         self.verticalLayout_2.addWidget(self.frame_4)
         self.verticalLayout_2.setStretch(0, 1)
         self.verticalLayout_2.setStretch(1, 5)
         self.verticalLayout_2.setStretch(2, 1)
+        self.agentbox.setFixedHeight(40)
+        self.projectbox.setFixedHeight(40)
         self.reader.close()
         
 

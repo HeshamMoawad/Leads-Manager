@@ -78,39 +78,51 @@
 # db.close()
 
 
-from PyQt5.QtSql import QSqlDatabase, QSqlRelationalTableModel, QSqlRelation , QSqlQuery
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView
+# from PyQt5.QtSql import QSqlDatabase, QSqlRelationalTableModel, QSqlRelation , QSqlQuery
+# from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView
 
-app = QApplication([])
+# app = QApplication([])
 
-# Create a connection to the database
-db = QSqlDatabase.addDatabase("QSQLITE")
-db.setDatabaseName("Data\database.db")
-db.open()
+# # Create a connection to the database
+# db = QSqlDatabase.addDatabase("QSQLITE")
+# db.setDatabaseName("Data\database.db")
+# db.open()
 
-# Create the relational table model
-model = QSqlRelationalTableModel()
-model.setTable("Live_Data")
-model.setRelation(0, QSqlRelation("Agents", "id", "agent_name")) 
-model.setRelation(2, QSqlRelation("Projects", "id", "project_name")) 
-model.setRelation(3, QSqlRelation("Sources", "id", "source_name")) 
+# # Create the relational table model
+# model = QSqlRelationalTableModel()
+# model.setTable("Live_Data")
+# model.setRelation(0, QSqlRelation("Agents", "id", "agent_name")) 
+# model.setRelation(2, QSqlRelation("Projects", "id", "project_name")) 
+# model.setRelation(3, QSqlRelation("Sources", "id", "source_name")) 
 
-t = model.relationModel(0)
-t.setFilter('agent_name = "name 2"')
-t.select()
+# t = model.relationModel(0)
+# t.setFilter('agent_name = "name 2"')
+# t.select()
 
-print(model.relationModel(0).filter())
+# print(model.relationModel(0).filter())
 
-# Populate the model with data
-# model.select()
+# # Populate the model with data
+# # model.select()
 
-# Create a view to display the table
-view = QTableView()
-view.setModel(model)
+# # Create a view to display the table
+# view = QTableView()
+# view.setModel(model)
 
-# Show the main window
-window = QMainWindow()
-window.setCentralWidget(view)
-window.show()
+# # Show the main window
+# window = QMainWindow()
+# window.setCentralWidget(view)
+# window.show()
 
-app.exec_()
+# app.exec_()
+from sqlalchemy import create_engine ,text
+from sqlalchemy.orm import sessionmaker
+import sqlalchemy as db
+# Create SQLAlchemy engine
+engine = create_engine('sqlite:///Data\database.db')
+
+# Create SQLAlchemy engine and session
+metadata = db.MetaData() #extracting the metadata
+division= db.Table('Live_Data', metadata, autoload_with=engine) #Table object
+
+print(division.select().filter(text('division.id = 1' )))
+
