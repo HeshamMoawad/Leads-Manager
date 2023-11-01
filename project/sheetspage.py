@@ -9,7 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from QSqlModels.models import ListModel
+from QSqlModels.orm.models import Agent
 
 class SheetsPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget=None):
@@ -105,6 +106,8 @@ class SheetsPage(QtWidgets.QWidget):
         self.agentbox.setFixedHeight(40)
         self.countbox.setFixedHeight(40)
         self.countbox.setMaximum(10000)
+        self.listmodel = ListModel(Agent)
+        self.agentbox.setModel(self.listmodel)
 
         
 
