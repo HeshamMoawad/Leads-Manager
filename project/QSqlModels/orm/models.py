@@ -11,28 +11,6 @@ from sqlalchemy import (
 from .db import BaseModel , engine , relationship
 
 
-# class Base(BaseModel):
-#     """
-#     Attributes :-
-#         - id auto
-#         - name  * required
-#         - deleted  default 0
-#         - active default 1 
-#         - created_date  auto
-#         - created_time  auto
-#     """
-
-#     id = Column(Integer,primary_key=True)
-#     name = Column(String(50) , nullable=False)
-#     deleted = Column(Boolean , default = False , nullable=False)
-#     active = Column(Boolean, default =True, nullable=False)
-#     created_date = Column(Date,server_default=func.current_date())
-#     created_time = Column(Time ,server_default=func.current_time())
-
-#     def __str__(self) -> str:
-#         return f"{self.__class__.__name__}(id = {self.id} , name = {self.name})"
-
-
 class Agent(BaseModel):
     """
     Attributes :-
@@ -53,6 +31,7 @@ class Agent(BaseModel):
     created_date = Column(Date,server_default=func.current_date())
     created_time = Column(Time ,server_default=func.current_time())
     # live_data = relationship("RowOfLiveData" , back_populates="agent")
+    # live_data = relationship("RowOfLiveData", back_populates="agent")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id = {self.id} , name = {self.name})"
@@ -104,6 +83,7 @@ class Source(BaseModel):
     # data = relationship("RowOfData" , back_populates="source")
     # leads = relationship("Lead",back_populates="source")
     # live_data = relationship("RowOfLiveData" , back_populates="source")
+    # live_data = relationship("RowOfLiveData", back_populates="source")
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id = {self.id} , name = {self.name})"
@@ -125,11 +105,11 @@ class RowOfData(BaseModel):
     __tablename__ = "data"
     id = Column(Integer,primary_key=True)
     deleted = Column(Boolean , default = False , nullable=False)
-    created_date = Column(Date,server_default=func.current_date())
-    created_time = Column(Time ,server_default=func.current_time())
     name = Column(String(50),nullable=True)
     number = Column(String(20),nullable=False)
     source_id = Column(Integer , ForeignKey("sources.id"))
+    created_date = Column(Date,server_default=func.current_date())
+    created_time = Column(Time ,server_default=func.current_time())
     # source = relationship("Source",back_populates="datarows")
 
     def __str__(self) -> str:
@@ -152,14 +132,24 @@ class RowOfLiveData(BaseModel):
     """
     __tablename__ = "live_data"
     id = Column(Integer,primary_key=True)
-    agent_id = Column(Integer , ForeignKey("agents.id"))
+    # agent_id = Column(Integer , ForeignKey("agents.id"))
     # agent = relationship("Agent",back_populates="live_data")
+    agent_id = Column(Integer, ForeignKey("agents.id"))
+    # agent = relationship("Agent", back_populates="live_data")
+
     number = Column(String(20),nullable=False)
-    project_id = Column(Integer , ForeignKey("projects.id"))
+    # project_id = Column(Integer , ForeignKey("projects.id"))
     # project = relationship("Project",back_populates="live_data")
-    source_id = Column(Integer , ForeignKey("sources.id"))
+    project_id = Column(Integer, ForeignKey("projects.id"))
+    # project = relationship("Project", back_populates="live_data")
+
+    # source_id = Column(Integer , ForeignKey("sources.id"))
     # source = relationship("Source",back_populates="live_data")
-    # lead = relationship("Lead")
+    source_id = Column(Integer, ForeignKey("sources.id"))
+    # source = relationship("Source", back_populates="live_data")
+
+    # lead = relationship("Lead", uselist=False, back_populates="row_of_live_data")
+
     created_date = Column(Date,server_default=func.current_date())
     created_time = Column(Time ,server_default=func.current_time())
 
@@ -188,7 +178,7 @@ class Lead(BaseModel):
     created_date = Column(Date,server_default=func.current_date())
     created_time = Column(Time ,server_default=func.current_time())
     live_data_id = Column(Integer ,ForeignKey("live_data.id"))
-    # live_data = relationship("RowOfLiveData")
+    # row_of_live_data = relationship("RowOfLiveData", uselist=False, back_populates="lead")
 
 
     def __str__(self) -> str:

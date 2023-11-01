@@ -9,10 +9,12 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from popups import AddPopupAgents , AddPopupSources , AddPopupProjects
+from QSqlModels.orm import session , Agent
 
 
 class ManagerDataPage(QtWidgets.QWidget):
-    def __init__(self, parent:QtWidgets.QWidget=None):
+    def __init__(self, parent:QtWidgets.QWidget=None , css:str=""):
         super().__init__(parent)
         self.setObjectName("ManagerData")
         self.resize(783, 607)
@@ -269,6 +271,19 @@ class ManagerDataPage(QtWidgets.QWidget):
         self.showDataBtn.setFixedSize(24,24)
         
         self.exportbox.addItems(["Agents","Projects","Sources","Data"])
+
+
+        self.addpopupagent = AddPopupAgents("Agents Adder",self)
+        self.addAgentsBtn.clicked.connect(self.addpopupagent.show)
+
+        self.addpopupsource = AddPopupSources(css=css)
+        self.addSourcesBtn.clicked.connect(self.addpopupsource.show)
+
+        self.addpopupprojects = AddPopupProjects(css=css)
+        self.addProjectsBtn.clicked.connect(self.addpopupprojects.show)
+
+
+
 
 
 

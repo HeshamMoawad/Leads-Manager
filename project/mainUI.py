@@ -124,7 +124,7 @@ class MainWindow(MyQMainWindow):
         self.stackedWidget.insertWidget(1,self.sheetspage)
         self.reportpage = ReportPage(self)
         self.stackedWidget.insertWidget(2,self.reportpage)
-        self.managerdatapage = ManagerDataPage(self)
+        self.managerdatapage = ManagerDataPage(self,QSS)
         self.stackedWidget.insertWidget(3,self.managerdatapage)
         self.querypage = QueryPage(self)
         self.stackedWidget.insertWidget(4,self.querypage)
@@ -155,7 +155,7 @@ class MainWindow(MyQMainWindow):
         self.chartBtnPage.setFixedSize(24,24)
 
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
         super().SetupUi()
 
 

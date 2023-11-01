@@ -17,6 +17,9 @@ from PyQt5.QtCore import (
 from PyQt5.QtGui import QIcon
 import typing , sys
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import Qt , QStringListModel
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QWidget, QCompleter
 
 
 
@@ -196,3 +199,102 @@ class Calendar(QWidget):
         self.value = self.calendarWidget.selectedDate()
         return super().close()
 
+
+
+
+class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
+    def __init__(self, document):
+        super().__init__(document)
+        self.rules = [
+            (r'\bSELECT\b', Qt.GlobalColor.darkRed),
+            (r'\bFROM\b', Qt.darkRed),
+            (r'\bWHERE\b', Qt.darkRed),
+            (r'\bJOIN\b', Qt.darkRed),
+            (r'\bLEFT\b', Qt.darkRed),
+            (r'\bRIGHT\b', Qt.darkRed),
+            (r'\bINNER\b', Qt.darkRed),
+            (r'\bON\b', Qt.darkRed),
+            (r'\bAND\b', Qt.darkRed),
+            (r'\bOR\b', Qt.darkRed),
+            (r'\bNOT\b', Qt.darkRed),
+            (r'\bORDER BY\b', Qt.darkRed),
+            (r'\bGROUP BY\b', Qt.darkRed),
+        ]
+
+    def highlightBlock(self, text):
+        for pattern, color in self.rules:
+            self.highlight(pattern, text, color)
+
+    def highlight(self, pattern, text, color):
+        import re
+        for match in re.finditer(pattern, text):
+            start, end = match.span()
+            self.setFormat(start, end - start, color)
+
+
+
+class SQLCodeEditor(QTextEdit):
+    def __init__(self,parent:QWidget=None):
+        super().__init__(parent)
+        self.completer = QCompleter()
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setModel(self.createCompleterModel())
+        self.highlighter = SQLSyntaxHighlighter(self.document())
+        self.completer.setWrapAround(False)
+        self.completer.setWidget(self)
+        self.completer.activated.connect(self.insertCompletion)
+        self.completer.activated.connect(self.completer.popup().hide)
+
+    def insertCompletion(self, completion):
+        if self.completer.widget() != self:
+            return
+        cursor = self.textCursor()
+        cursor.movePosition(QTextCursor.StartOfWord, QTextCursor.KeepAnchor)
+        cursor.insertText(completion)
+        self.setTextCursor(cursor)
+
+    def textUnderCursor(self):
+        cursor = self.textCursor()
+        cursor.select(QTextCursor.WordUnderCursor)
+        return cursor.selectedText()
+
+    def createCompleterModel(self):
+        model = QStringListModel()
+        model.setStringList(self.completionList())
+        return model
+
+    def completionList(self):
+        return ["SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "ON", "AND", "OR", "NOT", "ORDER BY", "GROUP BY"]
+
+    def focusInEvent(self, e):
+        self.completer.setWidget(self)
+        super(SQLCodeEditor, self).focusInEvent(e)
+
+    def keyPressEvent(self, event):
+        if self.completer.popup().isVisible():
+            if event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape, Qt.Key_Tab, Qt.Key_Backtab):
+                event.ignore()
+                return
+        super(SQLCodeEditor, self).keyPressEvent(event)
+        if event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Tab, Qt.Key_Space):
+            cursor = self.textCursor()
+            cursor.select(QTextCursor.WordUnderCursor)
+            extra = cursor.selectedText()
+            popup = self.completer.popup()
+            popup.setCurrentIndex(self.completer.model().index(0, 0))
+            cr = self.cursorRect()
+            cr.setWidth(popup.sizeHintForColumn(0)
+                        + popup.verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr)
+        else:
+            cursor = self.textCursor()
+            cursor.select(QTextCursor.WordUnderCursor)
+            prefix = cursor.selectedText()
+            if prefix != self.completer.completionPrefix():
+                self.completer.setCompletionPrefix(prefix)
+                self.completer.popup().setCurrentIndex(
+                    self.completer.completionModel().index(0, 0))
+            cr = self.cursorRect()
+            cr.setWidth(self.completer.popup().sizeHintForColumn(0)
+                        + self.completer.popup().verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr)

@@ -113,16 +113,16 @@
 # window.setCentralWidget(view)
 # window.show()
 
-# app.exec_()
-from sqlalchemy import create_engine ,text
-from sqlalchemy.orm import sessionmaker
-import sqlalchemy as db
-# Create SQLAlchemy engine
-engine = create_engine('sqlite:///Data\database.db')
+# # app.exec_()
+# from sqlalchemy import create_engine ,text
+# from sqlalchemy.orm import sessionmaker
+# import sqlalchemy as db
+# # Create SQLAlchemy engine
+# engine = create_engine('sqlite:///Data\database.db')
 
-# Create SQLAlchemy engine and session
-metadata = db.MetaData() #extracting the metadata
-division= db.Table('Live_Data', metadata, autoload_with=engine) #Table object
+# # Create SQLAlchemy engine and session
+# metadata = db.MetaData() #extracting the metadata
+# division= db.Table('Live_Data', metadata, autoload_with=engine) #Table object
 
-print(division.select().filter(text('division.id = 1' )))
+# print(division.select().filter(text('division.id = 1' )))
 

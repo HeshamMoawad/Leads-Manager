@@ -10,13 +10,12 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qmodels import SearchBar
-from QDataManager.core.models import DataReader
+# from QDataManager.core.models import DataReader
 
 
 class AddLeadsPage(QtWidgets.QWidget):
     def __init__(self,parent:QtWidgets.QWidget=None):
         super().__init__(parent)
-        self.reader = DataReader()
         self.setObjectName("AddLeadsPage")
         self.resize(783, 607)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self)
@@ -35,13 +34,11 @@ class AddLeadsPage(QtWidgets.QWidget):
         self.searchbar.setObjectName("searchbar")
         self.horizontalLayout_3.addWidget(self.searchbar)
         self.agentbox = QtWidgets.QComboBox(self.frame)        
-        self.agentbox.addItems(self.reader.Agents['agent_name'].to_list())
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self.agentbox.setSizePolicy(sizePolicy)
         self.agentbox.setObjectName("agentbox")
         self.horizontalLayout_3.addWidget(self.agentbox)
         self.projectbox = QtWidgets.QComboBox(self.frame)
-        self.projectbox.addItems(self.reader.Projects['project_name'].to_list())
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self.projectbox.setSizePolicy(sizePolicy)
         self.projectbox.setObjectName("projectbox")
@@ -103,7 +100,6 @@ class AddLeadsPage(QtWidgets.QWidget):
         self.verticalLayout_2.setStretch(2, 1)
         self.agentbox.setFixedHeight(40)
         self.projectbox.setFixedHeight(40)
-        self.reader.close()
         
 
 

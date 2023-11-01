@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from qmodels import SQLCodeEditor
 
 class QueryPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget = None ):
@@ -32,7 +32,7 @@ class QueryPage(QtWidgets.QWidget):
         self.label.setObjectName("label")
         self.label.setText("Query : ")
         self.horizontalLayout_2.addWidget(self.label)
-        self.textEdit = QtWidgets.QTextEdit(self.frame)
+        self.textEdit = SQLCodeEditor(self.frame)
         self.textEdit.setPlaceholderText("Enter Queries Here ... ")
         self.textEdit.setObjectName("textEdit")
         self.horizontalLayout_2.addWidget(self.textEdit)
