@@ -126,3 +126,15 @@
 
 # print(division.select().filter(text('division.id = 1' )))
 
+import pandas as pd
+import sqlite3
+
+
+
+con = sqlite3.connect("test.db")
+
+df = pd.DataFrame({
+    "uniqueval" :[9,3 , 8 , 7,48],
+})
+print(df)
+df.to_sql("tests",con,if_exists='append',index=False)

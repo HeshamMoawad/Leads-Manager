@@ -7,6 +7,7 @@ from sqlalchemy import (
     Time ,
     func , 
     ForeignKey ,
+    UniqueConstraint ,
 )
 from .db import BaseModel , engine , relationship
 
@@ -106,7 +107,8 @@ class RowOfData(BaseModel):
     id = Column(Integer,primary_key=True)
     deleted = Column(Boolean , default = False , nullable=False)
     name = Column(String(50),nullable=True)
-    number = Column(String(20),nullable=False)
+    taked = Column(Boolean , default=False )
+    number = Column(String(20),nullable=False,unique=True)
     source_id = Column(Integer , ForeignKey("sources.id"))
     created_date = Column(Date,server_default=func.current_date())
     created_time = Column(Time ,server_default=func.current_time())
@@ -114,6 +116,9 @@ class RowOfData(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(id = {self.id} , name = {self.name})"
+    __table_args__ = (
+        UniqueConstraint('number'),
+    )
 
 
 class RowOfLiveData(BaseModel): 

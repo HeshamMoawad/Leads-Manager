@@ -9,7 +9,13 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from popups import AddPopupAgents , AddPopupSources , AddPopupProjects
+from popups import ( 
+    AddPopupAgents , 
+    AddPopupSources , 
+    AddPopupProjects , 
+    ViewDBTable ,
+    AddPopupData
+    )
 from QSqlModels.orm import session , Agent
 
 
@@ -273,18 +279,24 @@ class ManagerDataPage(QtWidgets.QWidget):
         self.exportbox.addItems(["Agents","Projects","Sources","Data"])
 
 
-        self.addpopupagent = AddPopupAgents("Agents Adder",self)
+        self.addpopupagent = AddPopupAgents("Agents Adder")
         self.addAgentsBtn.clicked.connect(self.addpopupagent.show)
 
-        self.addpopupsource = AddPopupSources(css=css)
+        self.addpopupsource = AddPopupSources()
         self.addSourcesBtn.clicked.connect(self.addpopupsource.show)
 
-        self.addpopupprojects = AddPopupProjects(css=css)
+        self.addpopupprojects = AddPopupProjects()
         self.addProjectsBtn.clicked.connect(self.addpopupprojects.show)
 
 
-
-
+        self.tableviewer = ViewDBTable()
+        self.showAgentsBtn.clicked.connect(lambda : self.tableviewer.setTable("agents"))
+        self.showProjectsBtn.clicked.connect(lambda : self.tableviewer.setTable("projects"))
+        self.showSourcesBtn.clicked.connect(lambda : self.tableviewer.setTable("sources"))
+        self.showDataBtn.clicked.connect(lambda : self.tableviewer.setTable("data"))
+        
+        self.adddatapopup = AddPopupData()
+        self.addDataBtn.clicked.connect(self.adddatapopup.show)
 
 
 if __name__ == "__main__":
