@@ -1,0 +1,119 @@
+
+#centralwidget{
+    background-color:#dadada;
+    border:2px solid #dadada;
+    border-radius:25px;
+}
+
+
+QToolButton{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:11px;
+
+}
+
+QTextEdit{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:12px;
+
+}
+
+
+
+
+QComboBox {
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+}
+
+
+QComboBox:drop-down{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+}
+
+QComboBox QAbstractItemView{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:5px;
+} 
+
+QTableView{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:20px;
+}
+
+
+
+
+
+
+#exitBtn , #minimizeBtn{
+    background-color:#ededed;
+    border:2px solid #dadada;
+    border-radius:12px;
+
+}
+
+#exitBtn:pressed , #minimizeBtn:pressed{
+    background-color:#dadada;
+}
+
+
+#chartBtnPage , #queryBtnPage , #managerDataBtnPage , #reportBtnPage , #sheetsBtnPage ,#addLeadsBtnPage {
+
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:12px;
+
+}
+#chartBtnPage:hover , #queryBtnPage:hover , #managerDataBtnPage:hover , #reportBtnPage:hover , #sheetsBtnPage:hover ,#addLeadsBtnPage:hover {
+
+    background-color:#dadada;
+    border:1px solid #ededed;
+    border-radius:12px;
+
+}
+
+#chartBtnPage:checked , #queryBtnPage:checked , #managerDataBtnPage:checked , #reportBtnPage:checked , #sheetsBtnPage:checked ,#addLeadsBtnPage:checked {
+
+    background-color:#b9b9b9;
+    border:1px solid #b9b9b9;
+    border-radius:12px;
+
+}
+#SearchBar{
+    background-color:#ededed;
+}
+
+#SearchBar_toolButton{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:15px;
+
+}
+#SearchBar_lineEdit{
+    background-color:#ededed;
+    border:3px solid #ededed;
+    border-bottom-color:black;
+    border-radius:5px;
+}
+
+#exportBtn ,#addButton {
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:25px;
+}
+
+#exportBtn:hover ,#addButton:hover {
+    background-color:#dadada;
+    border:1px solid #ededed;
+    border-radius:25px;
+}
+
+

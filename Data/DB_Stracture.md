@@ -13,7 +13,8 @@
 - source_name
 - deleted
 - active 
-- timestamp
+- adding_date
+- adding_time
 
 ===> Query :
 ```sql
@@ -22,7 +23,8 @@ CREATE TABLE "Sources" (
   	"source_name" varchar(50) not NULL ,
   	"deleted" intger DEFAULT 0 ,
   	"active" intger DEFAULT 1 ,
-  	"timestamp" bigint not NULL 
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```
 
@@ -31,7 +33,8 @@ CREATE TABLE "Sources" (
 - agent_name
 - deleted
 - active 
-- timestamp
+- adding_date
+- adding_time
 
 ===> Query :
 ```sql
@@ -40,7 +43,8 @@ CREATE TABLE "Agents" (
   	"agent_name" varchar(50) not NULL ,
   	"deleted" intger DEFAULT 0 ,
   	"active" intger DEFAULT 1 ,
-  	"timestamp" bigint not NULL 
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```
 
@@ -50,7 +54,10 @@ CREATE TABLE "Agents" (
 - project_name
 - deleted
 - active 
-- timestamp
+- extension
+- adding_date
+- adding_time
+
 
 ===> Query :
 ```sql
@@ -59,7 +66,9 @@ CREATE TABLE "Projects" (
   	"project_name" varchar(50) not NULL ,
   	"deleted" intger DEFAULT 0 ,
   	"active" intger DEFAULT 1 ,
-  	"timestamp" bigint not NULL 
+	"extension" intger ,
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```
 
@@ -70,7 +79,8 @@ CREATE TABLE "Projects" (
 - taken
 - deleted
 - registered
-- timestamp
+- adding_date
+- adding_time
 
 ===> Query :
 ```sql
@@ -81,7 +91,8 @@ CREATE TABLE "Data" (
   	"taken" intger DEFAULT 0 ,
   	"deleted" intger DEFAULT 0 ,
   	"registered" intger DEFAULT 0 ,
-  	"timestamp" bigint not NULL 
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```
 
@@ -94,7 +105,9 @@ CREATE TABLE "Data" (
 - project_id
 - source_id
 - description
-- timestamp
+- adding_date
+- adding_time
+
 
 ===> Query :
 ```sql
@@ -105,7 +118,8 @@ CREATE TABLE "Leads"(
   	"project_id" intger not NULL REFERENCES "Projects"("id") DEFERRABLE INITIALLY DEFERRED ,
   	"source_id" intger not NULL REFERENCES "Sources"("id") DEFERRABLE INITIALLY DEFERRED ,
   	"description" varchar(500) NULL ,
-  	"timestamp" bigint NOT NULL 
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```                                                
 
@@ -115,7 +129,8 @@ CREATE TABLE "Leads"(
 - number
 - project_id
 - source_id
-- timestamp
+- adding_date
+- adding_time
 
 ===> Query :
 ```sql
@@ -124,6 +139,7 @@ CREATE TABLE "Live_Data"(
   	"number" varchar(20) NOT NULL ,
   	"project_id" intger not NULL REFERENCES "Projects"("id") DEFERRABLE INITIALLY DEFERRED ,
   	"source_id" intger not NULL REFERENCES "Sources"("id") DEFERRABLE INITIALLY DEFERRED ,
-  	"timestamp" bigint NOT NULL 
+  	"adding_date" date  DEFAULT CURRENT_DATE ,
+	"adding_time" time  DEFAULT CURRENT_TIME
 );
 ```                                                
