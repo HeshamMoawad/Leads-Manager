@@ -52,8 +52,8 @@ class Project(BaseModel):
     """
     __tablename__ = "projects"
     id = Column(Integer,primary_key=True)
-    name = Column(String(50) , nullable=False)
-    extension = Column(String(10),nullable=False)
+    name = Column(String(50) , nullable=False,unique=True)
+    extension = Column(String(10),nullable=True)
     deleted = Column(Boolean , default = False , nullable=False)
     active = Column(Boolean, default =True, nullable=False)
     created_date = Column(Date,server_default=func.current_date())
@@ -76,7 +76,7 @@ class Source(BaseModel):
     """
     __tablename__ = "sources"
     id = Column(Integer,primary_key=True)
-    name = Column(String(50) , nullable=False)
+    name = Column(String(50) , nullable=False,unique=True)
     deleted = Column(Boolean , default = False , nullable=False)
     active = Column(Boolean, default =True, nullable=False)
     created_date = Column(Date,server_default=func.current_date())

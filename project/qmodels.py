@@ -20,6 +20,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt , QStringListModel
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QWidget, QCompleter
+from PyQt5.QtSql import QSqlDatabase , QSqlQuery  , QSqlTableModel
+
 
 
 
@@ -298,3 +300,18 @@ class SQLCodeEditor(QTextEdit):
             cr.setWidth(self.completer.popup().sizeHintForColumn(0)
                         + self.completer.popup().verticalScrollBar().sizeHint().width())
             self.completer.complete(cr)
+
+
+class QueryTableModel(QSqlTableModel):
+    def __init__(self) -> None:
+        db = QSqlDatabase.addDatabase("QSQLITE")
+        db.setDatabaseName("Data\database.db")
+        db.open()
+
+        super().__init__()
+
+    def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
+        return super().flags(index) & ~Qt.ItemFlag.ItemIsEditable
+
+    def setQuery(self, query: str) -> None:
+        return super().setQuery(QSqlQuery(str(query)))

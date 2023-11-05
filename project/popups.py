@@ -9,7 +9,7 @@ QSS = open("assets\qss\popup.qss").read()
 
 
 class AddPopupAgents(QtWidgets.QWidget):
-    def __init__(self,title:str="", parent:QtWidgets.QWidget=None , ext:bool=False):
+    def __init__(self,title:str="Agents Adder", parent:QtWidgets.QWidget=None , ext:bool=False):
         super().__init__()
         self.setObjectName("AddPopup")
         self.resize(340, 170)
@@ -92,7 +92,9 @@ class AddPopupAgents(QtWidgets.QWidget):
             session.add(model)
             session.commit()
             return True
-        except Exception as e : return False
+        except Exception as e : 
+            print(e)
+            return False
 
 class AddPopupSources(AddPopupAgents): 
     def __init__(self, title: str = "Source Adder", parent: QtWidgets.QWidget = None, ext: bool = False):
@@ -107,9 +109,8 @@ class AddPopupSources(AddPopupAgents):
         else :
             self.msg.showWarning("Please enter name with length more than or equal 3 letters ","Not Valid")
 
-
 class AddPopupProjects(AddPopupAgents):
-    def __init__(self, title: str = "Projects Adder", parent: QtWidgets.QWidget = None, ext: bool = False):
+    def __init__(self, title: str = "Projects Adder", parent: QtWidgets.QWidget = None, ext: bool = True):
         super().__init__(title, parent, ext)
     def ok (self):
         name = self.nameedit.text()
@@ -124,7 +125,6 @@ class AddPopupProjects(AddPopupAgents):
                 self.msg.showCritical("There are error !!!")
         else :
             self.msg.showWarning("Please enter name with length more than or equal 3 letters ","Not Valid")
-
 
 class ViewDBTable(QtWidgets.QTableView):
 
@@ -141,13 +141,13 @@ class ViewDBTable(QtWidgets.QTableView):
         self.setWindowTitle(f"DB Viewer : {table}")
         self.show()
     
-
 class AddPopupData(QtWidgets.QWidget):
     def __init__(self,parent:QtWidgets.QWidget=None):
         super().__init__(parent)
         self.setObjectName("AddDataPopup")
         self.resize(355, 174)
         self.setStyleSheet(QSS)
+        self.msg = MyMessageBox(self)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame = QtWidgets.QFrame(self)
@@ -210,6 +210,8 @@ class AddPopupData(QtWidgets.QWidget):
         self.comboBox.setModel(self.sourcesmodel)
         self.addBtn.clicked.connect(self.submit)
         
+    def setPrepared (self,prepared:bool):
+        self.prepared = prepared
 
     def getPath(self):
         file_filter = 'Data File (*.xlsx );; Excel File (*.xlsx)'
@@ -219,24 +221,34 @@ class AddPopupData(QtWidgets.QWidget):
         )[0]
         print(directory)
         if len(directory) > 1 :
+            self.prepared = False
             self.reader = ReadExcelIntoDBModel(directory)
-            if self.reader.validate():
-                self.excelLabel.setText(directory.split("/")[-1])
-                self.countLabel.setText(f"Count : {len(self.reader.data)}")
-            else :
-                self.excelLabel.setText("Can't load sheet")
+            self.reader.start(self.reader.Priority.InheritPriority)
+            self.reader.success.connect(lambda : self.excelLabel.setText(directory.split("/")[-1]))
+            self.reader.success.connect(lambda : self.countLabel.setText(f"Count : {len(self.reader.data)}"))
+            self.reader.Faild.connect(lambda : self.excelLabel.setText("Can't load sheet") )
+            self.reader.success.connect(lambda : self.setPrepared(True))
 
     def submit(self):
-        try :
-            self.reader.session.merge(
-                self.reader.apply(
-                    RowOfData,
-                    self.reader.session.query(Source).filter(Source.name == self.comboBox.currentText()).all()[0].id
-                    )[0])
-            self.reader.session.commit()
-            self.close()
-        except Exception as e :
-            print(e)
+        if self.prepared : 
+            try :
+                sequence = self.reader.apply(
+                        RowOfData,
+                        self.reader.session.query(Source).filter(Source.name == self.comboBox.currentText()).all()[0].id
+                        )
+                if sequence :
+                    self.reader.session.add_all(sequence)
+                    self.reader.session.commit()
+                    self.msg.showInfo("Success add to database")
+                    self.close()
+                else :
+                    self.msg.showCritical("no new numbers")
+            except IndexError :
+                self.msg.showWarning("please choose source !!")
+            except Exception as e :
+                print(f"----{e}----")
+        else :
+            self.excelLabel.setText("Can't add to Database please restart app !")
 
     def refresh(self):
         self.excelLabel.setText("")
@@ -246,7 +258,7 @@ class AddPopupData(QtWidgets.QWidget):
         except : ...
         self.sourcesmodel.refresh()
 
-
     def show(self) -> None:
         self.refresh()
         return super().show()
+

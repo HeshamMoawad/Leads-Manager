@@ -1,6 +1,9 @@
-from PyQt5.QtCore import QAbstractTableModel, QAbstractListModel , QModelIndex , Qt
+from PyQt5.QtCore import QAbstractTableModel, QAbstractListModel , QModelIndex , Qt , QThread
 from .orm import (
     session , 
+    Agent ,
+    RowOfData ,
+    Source
 )
 import typing
 from PyQt5.QtSql import QSqlTableModel , QSqlQuery , QSqlDatabase
@@ -41,6 +44,8 @@ class TableModelView(QSqlTableModel):
         db = QSqlDatabase.addDatabase("QSQLITE")
         db.setDatabaseName("Data\database.db")
         db.open()
+        # query = str(session.query(RowOfData,Source.name).join(Source,RowOfData.source_id == Source.id ))
+        # print(query)
         self.setQuery(QSqlQuery(f"SELECT * FROM {table}"))
         self.select()
         db.close()
@@ -48,4 +53,7 @@ class TableModelView(QSqlTableModel):
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         return super().flags(index) & ~Qt.ItemFlag.ItemIsEditable
+
+
+
 

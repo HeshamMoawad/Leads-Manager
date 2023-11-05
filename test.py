@@ -126,15 +126,34 @@
 
 # print(division.select().filter(text('division.id = 1' )))
 
-import pandas as pd
-import sqlite3
+# import pandas as pd
+# import sqlite3
 
 
 
-con = sqlite3.connect("test.db")
+# con = sqlite3.connect("test.db")
 
-df = pd.DataFrame({
-    "uniqueval" :[9,3 , 8 , 7,48],
-})
-print(df)
-df.to_sql("tests",con,if_exists='append',index=False)
+# df = pd.DataFrame({
+#     "uniqueval" :[9,3 , 8 , 7,48],
+# })
+# print(df)
+# df.to_sql("tests",con,if_exists='append',index=False)
+
+import re
+
+text = """Your text containing phone numbers goes here.
++966546987321 548963215 966584963123 +966 50 231 9548
+
+"""
+
+# Regex pattern to find Saudi Arabian phone numbers
+pattern = r'\b(?:\+?966\s?5\d{8}|\b5\d{8})\b'
+
+# Find all matches in the text
+matches = re.findall(pattern, text)
+
+# Print the matches
+print(matches)
+
+
+

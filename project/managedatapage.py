@@ -276,10 +276,9 @@ class ManagerDataPage(QtWidgets.QWidget):
         self.showSourcesBtn.setFixedSize(24,24)
         self.showDataBtn.setFixedSize(24,24)
         
-        self.exportbox.addItems(["Agents","Projects","Sources","Data"])
+        self.exportbox.addItems(["Agents","Projects","Sources","Data","Leads"])
 
-
-        self.addpopupagent = AddPopupAgents("Agents Adder")
+        self.addpopupagent = AddPopupAgents()
         self.addAgentsBtn.clicked.connect(self.addpopupagent.show)
 
         self.addpopupsource = AddPopupSources()

@@ -10,7 +10,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from QSqlModels.models import ListModel
-from QSqlModels.orm.models import Agent
+from QSqlModels.orm.models import Agent , Project , Source ,RowOfData
+from QSqlModels.orm.db import session
+from qmodels import QueryTableModel
+
 
 class SheetsPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget=None):
@@ -106,10 +109,34 @@ class SheetsPage(QtWidgets.QWidget):
         self.agentbox.setFixedHeight(40)
         self.countbox.setFixedHeight(40)
         self.countbox.setMaximum(10000)
-        self.listmodel = ListModel(Agent)
-        self.agentbox.setModel(self.listmodel)
+        self.query = ""
 
+        self.listmodelagent = ListModel(Agent)
+        self.agentbox.setModel(self.listmodelagent)
+
+        self.listmodelproject = ListModel(Project)
+        self.projectbox.setModel(self.listmodelproject)
+
+        self.listmodelsource = ListModel(Source)
+        self.sourcebox.setModel(self.listmodelsource)
+
+        self.querymodel = QueryTableModel()
+        self.tableView.setModel(self.querymodel)
         
+        self.sourcebox.currentTextChanged.connect(self.setQuery)
+        self.countbox.valueChanged.connect(self.setQuery)
+
+
+    def setQuery(self):
+        sid=  session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id
+        # print(f"\n\n{sid}\n\n")
+        self.query = str(session.query(RowOfData).filter(
+            RowOfData.deleted == 0 ,
+            RowOfData.taked == 0 ,
+            RowOfData.source_id ==sid ,
+        ).limit(self.countbox.value()))
+        print(self.query)
+        self.querymodel.setQuery("SELECT * From data")
 
 
 

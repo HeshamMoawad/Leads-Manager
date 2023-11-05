@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qmodels import SQLCodeEditor
+from qmodels import SQLCodeEditor , QueryTableModel
 
 class QueryPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget = None ):
@@ -80,6 +80,14 @@ class QueryPage(QtWidgets.QWidget):
         self.verticalLayout_2.setStretch(0, 1)
         self.verticalLayout_2.setStretch(1, 3)
         self.horizontalLayout.addWidget(self.widget)
+        self.query = ""
+        self.querymodel = QueryTableModel()
+        self.tableView.setModel(self.querymodel)
+        self.textEdit.textChanged.connect(self.setQuery)
+
+    def setQuery(self):
+        self.query = self.textEdit.toPlainText()
+        self.querymodel.setQuery(self.query)
 
 
 
