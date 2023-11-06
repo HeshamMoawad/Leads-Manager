@@ -9,8 +9,10 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qmodels import SearchBar
-# from QDataManager.core.models import DataReader
+from qmodels import SearchBar ,QueryTableModel
+from QSqlModels.models import ListModel , Agent ,Project , Lead
+
+
 
 
 class AddLeadsPage(QtWidgets.QWidget):
@@ -98,9 +100,52 @@ class AddLeadsPage(QtWidgets.QWidget):
         self.verticalLayout_2.setStretch(0, 1)
         self.verticalLayout_2.setStretch(1, 5)
         self.verticalLayout_2.setStretch(2, 1)
+
         self.agentbox.setFixedHeight(40)
         self.projectbox.setFixedHeight(40)
         
+        self.listmodelagent = ListModel(Agent)
+        self.agentbox.setModel(self.listmodelagent)
+
+        self.listmodelproject = ListModel(Project)
+        self.projectbox.setModel(self.listmodelproject)
+
+        self.querymodel = QueryTableModel()
+        self.tableView.setModel(self.querymodel)
+        self.querymodel.lengthChanged.connect(lambda x: self.counterlabel.setText(f"Count : {x}"))
+        self.searchbar.lineEdit.textChanged.connect(self.setQuery)
+        self.agentbox.currentTextChanged.connect(self.setQuery)
+        self.projectbox.currentTextChanged.connect(self.setQuery)
+        self.query = ""
+        self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
+        self.refeshShortcut.activated.connect(self.refresh)
+        self.refresh()
+
+    def setQuery(self):
+        self.query = f"""
+        SELECT live_data.number AS number , sources.name AS source , agents.name AS agent ,projects.name AS project FROM live_data
+        JOIN sources ON sources.id = live_data.source_id
+        JOIN agents ON agents.id = live_data.agent_id
+        JOIN projects ON projects.id = live_data.project_id
+        WHERE number LIKE '%{self.searchbar.lineEdit.text()}%'
+        """
+        if self.projectbox.currentText():
+            self.query += f"AND project = \'{self.projectbox.currentText()}\'"
+        if self.agentbox.currentText():
+            self.query += f"AND agent = \'{self.agentbox.currentText()}\'"
+        self.querymodel.setQuery(self.query)
+
+    # def addLead(self):
+    #     lead = Lead(
+    #         number = self.searchbar.lineEdit.text(),
+    #         live_data_id = 1
+    #     )
+
+    def refresh(self):
+        self.listmodelagent.refresh()
+        self.listmodelproject.refresh()
+        self.querymodel.clear()
+        self.searchbar.lineEdit.clear()
 
 
 

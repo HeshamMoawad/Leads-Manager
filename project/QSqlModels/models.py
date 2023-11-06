@@ -3,7 +3,9 @@ from .orm import (
     session , 
     Agent ,
     RowOfData ,
-    Source
+    Source ,
+    Project ,
+    Lead
 )
 import typing
 from PyQt5.QtSql import QSqlTableModel , QSqlQuery , QSqlDatabase
@@ -41,19 +43,14 @@ class ListModel(QAbstractListModel):
 class TableModelView(QSqlTableModel):
     def __init__(self ,table:str , parent=None) -> None:
         super().__init__(parent)
-        db = QSqlDatabase.addDatabase("QSQLITE")
-        db.setDatabaseName("Data\database.db")
-        db.open()
-        # query = str(session.query(RowOfData,Source.name).join(Source,RowOfData.source_id == Source.id ))
-        # print(query)
         self.setQuery(QSqlQuery(f"SELECT * FROM {table}"))
         self.select()
-        db.close()
 
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
-        return super().flags(index) & ~Qt.ItemFlag.ItemIsEditable
+        return super().flags(index) #& ~Qt.ItemFlag.ItemIsEditable
 
+    
 
 
 

@@ -9,13 +9,16 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qmodels import SQLCodeEditor , QueryTableModel
+from qmodels import SQLCodeEditor , QueryTableModel , MyMessageBox
+import pandas , datetime
+from QSqlModels.orm.db import con
 
 class QueryPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget = None ):
         super().__init__(parent)
         self.setObjectName("QueryPage")
         self.resize(783, 607)
+        self.msg = MyMessageBox(self)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget = QtWidgets.QWidget(self)
@@ -82,13 +85,27 @@ class QueryPage(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.widget)
         self.query = ""
         self.querymodel = QueryTableModel()
+        self.querymodel.lengthChanged.connect(lambda x: self.counterLabel.setText(f"Count : {x}") )
         self.tableView.setModel(self.querymodel)
         self.textEdit.textChanged.connect(self.setQuery)
+        self.submit.clicked.connect(self.submitAll)
+        self.exportBtn.clicked.connect(self.export)
 
     def setQuery(self):
         self.query = self.textEdit.toPlainText()
         self.querymodel.setQuery(self.query)
 
+    def submitAll(self):
+        self.querymodel.submitAll()
+
+    def export(self):
+        try :
+            df = pandas.read_sql_query(self.query,con)
+            directory = f"Query-{datetime.datetime.now().date()}.xlsx"
+            df.to_excel(directory,index=False)
+            self.msg.showInfo(f"Successfully Exported to \'{directory}\'")
+        except Exception as e :
+            self.msg.showCritical(f"Can't Export \n{e}")
 
 
 if __name__ == "__main__":

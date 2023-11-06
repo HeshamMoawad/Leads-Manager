@@ -139,21 +139,31 @@
 # print(df)
 # df.to_sql("tests",con,if_exists='append',index=False)
 
-import re
+# import re
 
-text = """Your text containing phone numbers goes here.
-+966546987321 548963215 966584963123 +966 50 231 9548
+# text = """Your text containing phone numbers goes here.
+# +966546987321 548963215 966584963123 +966 50 231 9548
 
-"""
+# """
 
-# Regex pattern to find Saudi Arabian phone numbers
-pattern = r'\b(?:\+?966\s?5\d{8}|\b5\d{8})\b'
+# # Regex pattern to find Saudi Arabian phone numbers
+# pattern = r'\b(?:\+?966\s?5\d{8}|\b5\d{8})\b'
 
-# Find all matches in the text
-matches = re.findall(pattern, text)
+# # Find all matches in the text
+# matches = re.findall(pattern, text)
 
-# Print the matches
-print(matches)
+# # Print the matches
+# print(matches)
+# import pathlib
+# import os
+
+# BASE_DIR = pathlib.Path(__file__).resolve().parent
+# directory = os.path.join(BASE_DIR,"Exports","2023","11","6")
+# if os.path.isdir(directory) :
+#     print("True")
+# else :
+#     os.makedirs(directory)
+# from project.utils import getdir
 
 
-
+# print(getdir("tttt.xlsx"))

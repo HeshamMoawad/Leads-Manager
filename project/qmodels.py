@@ -7,12 +7,14 @@ from PyQt5.QtWidgets import (
     QWidget
     )
 from PyQt5.QtCore import (
+    QModelIndex,
     QRect,
     pyqtProperty,
     Qt,
     QEvent,
     pyqtSignal,
-    QSize
+    QSize ,
+    QModelIndex
     )
 from PyQt5.QtGui import QIcon
 import typing , sys
@@ -202,8 +204,6 @@ class Calendar(QWidget):
         return super().close()
 
 
-
-
 class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, document):
         super().__init__(document)
@@ -221,6 +221,9 @@ class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
             (r'\bNOT\b', Qt.darkRed),
             (r'\bORDER BY\b', Qt.darkRed),
             (r'\bGROUP BY\b', Qt.darkRed),
+            (r'\bLIMIT\b', Qt.darkRed),
+            (r'\bOFFSET\b', Qt.darkRed),
+            (r'\bAS\b', Qt.darkRed),
         ]
 
     def highlightBlock(self, text):
@@ -303,15 +306,22 @@ class SQLCodeEditor(QTextEdit):
 
 
 class QueryTableModel(QSqlTableModel):
+    lengthChanged = pyqtSignal(int)
     def __init__(self) -> None:
         db = QSqlDatabase.addDatabase("QSQLITE")
         db.setDatabaseName("Data\database.db")
         db.open()
-
         super().__init__()
+
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
         return super().flags(index) & ~Qt.ItemFlag.ItemIsEditable
 
     def setQuery(self, query: str) -> None:
-        return super().setQuery(QSqlQuery(str(query)))
+        response =  super().setQuery(QSqlQuery(str(query)))
+        self.lengthChanged.emit(self.rowCount(QModelIndex()))
+        return response
+
+    def clear(self) -> None:
+        self.lengthChanged.emit(0)
+        return super().clear()

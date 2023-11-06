@@ -132,15 +132,23 @@ class ViewDBTable(QtWidgets.QTableView):
         super().__init__()
         if table : self.setTable(table)
         self.setStyleSheet(QSS)
+
         
 
     def setTable(self,table:str):
         self.table = table
         self.mymodel = TableModelView(table)
+        self.mymodel.setEditStrategy(self.mymodel.EditStrategy.OnManualSubmit)
+
         self.setModel(self.mymodel)
         self.setWindowTitle(f"DB Viewer : {table}")
         self.show()
     
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.mymodel.submitAll()
+        return super().closeEvent(a0)
+
+
 class AddPopupData(QtWidgets.QWidget):
     def __init__(self,parent:QtWidgets.QWidget=None):
         super().__init__(parent)

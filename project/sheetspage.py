@@ -10,9 +10,12 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from QSqlModels.models import ListModel
-from QSqlModels.orm.models import Agent , Project , Source ,RowOfData
-from QSqlModels.orm.db import session
-from qmodels import QueryTableModel
+from QSqlModels.orm.models import Agent , Project , Source ,RowOfData , RowOfLiveData
+from QSqlModels.orm.db import session , con , engine 
+from qmodels import QueryTableModel , MyMessageBox
+import pandas 
+from sqlalchemy import text
+from utils import getdir
 
 
 class SheetsPage(QtWidgets.QWidget):
@@ -20,6 +23,7 @@ class SheetsPage(QtWidgets.QWidget):
         super().__init__(parent)
         self.setObjectName("SheetsPage")
         self.resize(783, 607)
+        self.msg = MyMessageBox(self)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget = QtWidgets.QWidget(self)
@@ -121,23 +125,80 @@ class SheetsPage(QtWidgets.QWidget):
         self.sourcebox.setModel(self.listmodelsource)
 
         self.querymodel = QueryTableModel()
+        self.querymodel.setEditStrategy(self.querymodel.EditStrategy.OnManualSubmit)
         self.tableView.setModel(self.querymodel)
+
+        self.querymodel.lengthChanged.connect(lambda x: self.counterlabel.setText(f"Count : {x}") )
         
+
+        self.exportBtn.clicked.connect(self.export)
+        self.selectablequery = """
+        SELECT data.id AS id, data.name AS name, data.number AS number, sources.name AS source
+        FROM data      
+        JOIN sources ON sources.id = data.source_id
+        """
+        self.updaterquery = """
+        UPDATE data
+        SET taked = 1
+        """
+        self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
+        self.refeshShortcut.activated.connect(self.refresh)
+        self.refresh()
         self.sourcebox.currentTextChanged.connect(self.setQuery)
         self.countbox.valueChanged.connect(self.setQuery)
 
 
     def setQuery(self):
-        sid=  session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id
-        # print(f"\n\n{sid}\n\n")
-        self.query = str(session.query(RowOfData).filter(
-            RowOfData.deleted == 0 ,
-            RowOfData.taked == 0 ,
-            RowOfData.source_id ==sid ,
-        ).limit(self.countbox.value()))
-        print(self.query)
-        self.querymodel.setQuery("SELECT * From data")
+        if self.sourcebox.currentText() :
+            sourcefilter = f"""AND data.source_id = {session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id}""" 
+        else :
+            sourcefilter = ""
+        self.query = f"""
+        WHERE data.id IN (
+            SELECT data.id
+            FROM data
+            WHERE data.deleted = 0
+            AND data.taked = 0
+            {sourcefilter}
+            AND data.number NOT IN (
+                SELECT live_data.number
+                FROM leads
+                JOIN live_data ON live_data.id = leads.live_data_id
+            )
+            LIMIT {self.countbox.value()} 
+        );
+        """
+        self.querymodel.setQuery(self.selectablequery+self.query)
 
+
+    def export(self):
+        try :
+            df = pandas.read_sql_query(self.selectablequery+self.query,con)
+            directory = getdir(f"{self.agentbox.currentText()}-{self.projectbox.currentText()}-{len(df)}.xlsx")
+            df.to_excel(directory,index=False)
+            agent_id = session.query(Agent).filter(Agent.name==self.agentbox.currentText()).first().id
+            project_id = session.query(Project).filter(Project.name==self.projectbox.currentText()).first().id
+            source_id = session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id
+            df['models'] = df['number'].apply(lambda x : RowOfLiveData(
+                agent_id = agent_id ,
+                project_id = project_id ,
+                source_id = source_id ,
+                number = x 
+             ))
+            session.add_all(df['models'].to_list())
+            session.commit()
+            self.querymodel.setQuery(self.updaterquery + self.query)
+            self.querymodel.submitAll()
+            self.msg.showInfo(f"Successfully Exported to \'{directory}\' and updated")
+        except Exception as e :
+            self.msg.showCritical(f"Can't Export\n{e}")
+
+    def refresh(self):
+        self.listmodelagent.refresh()
+        self.listmodelproject.refresh()
+        self.listmodelsource.refresh()
+        self.querymodel.clear()
+        self.countbox.clear()
 
 
 if __name__ == "__main__":
