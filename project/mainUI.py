@@ -15,9 +15,12 @@ from sheetspage import SheetsPage
 from managedatapage import ManagerDataPage
 from querypage import QueryPage
 from reportpage import ReportPage
-# from PyQt5.QtSql import QSqlRelationalTableModel , QSqlRelation
+from PyQt5.QtSql import QSqlDatabase
 
 QSS = open('assets\qss\main.qss','r').read()
+db = QSqlDatabase.addDatabase("QSQLITE")
+db.setDatabaseName("Data\database.db")
+db.open()
 
 class MainWindow(MyQMainWindow):
     def SetupUi(self):

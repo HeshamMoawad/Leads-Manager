@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import (
-    QCalendarWidget,
+    QStyle,
+    QCalendarWidget ,
     QLineEdit,
     QMainWindow , 
     QApplication ,
     QMessageBox , 
-    QWidget
+    QWidget 
     )
 from PyQt5.QtCore import (
+    QCalendar,
     QModelIndex,
     QRect,
     pyqtProperty,
@@ -198,6 +200,12 @@ class Calendar(QWidget):
         self.pushButton.clicked.connect(self.Clicked.emit)
         self.pushButton.clicked.connect(self.close)
         self.value = self.calendarWidget.selectedDate()
+        self.calendarWidget.setHorizontalHeaderFormat(self.calendarWidget.HorizontalHeaderFormat.SingleLetterDayNames)
+        self.calendarWidget.setVerticalHeaderFormat(self.calendarWidget.VerticalHeaderFormat.NoVerticalHeader)
+        self.calendarWidget.setGridVisible(True)
+        self.calendarWidget.setFirstDayOfWeek(Qt.DayOfWeek.Saturday)
+        self.calendarWidget.setStyle(QtWidgets.QStyleFactory.create("Fusion"))
+        # self.calendarWidget
 
     def close(self) -> bool:
         self.value = self.calendarWidget.selectedDate()
@@ -308,9 +316,6 @@ class SQLCodeEditor(QTextEdit):
 class QueryTableModel(QSqlTableModel):
     lengthChanged = pyqtSignal(int)
     def __init__(self) -> None:
-        db = QSqlDatabase.addDatabase("QSQLITE")
-        db.setDatabaseName("Data\database.db")
-        db.open()
         super().__init__()
 
 

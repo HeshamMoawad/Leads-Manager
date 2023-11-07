@@ -5,7 +5,8 @@ from .orm import (
     RowOfData ,
     Source ,
     Project ,
-    Lead
+    Lead ,
+    RowOfLiveData
 )
 import typing
 from PyQt5.QtSql import QSqlTableModel , QSqlQuery , QSqlDatabase
@@ -48,7 +49,7 @@ class TableModelView(QSqlTableModel):
 
 
     def flags(self, index: QtCore.QModelIndex) -> QtCore.Qt.ItemFlags:
-        return super().flags(index) #& ~Qt.ItemFlag.ItemIsEditable
+        return super().flags(index) & ~Qt.ItemFlag.ItemIsEditable
 
     
 

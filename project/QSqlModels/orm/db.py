@@ -9,7 +9,7 @@ from sqlite3 import connect
 con = connect("Data\database.db")
 
 
-engine = create_engine('sqlite:///Data\database.db',echo=True)
+engine = create_engine('sqlite:///Data\database.db',echo=False)
 session = sessionmaker(engine)()
 BaseModel = declarative_base()
 

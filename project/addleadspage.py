@@ -10,8 +10,18 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qmodels import SearchBar ,QueryTableModel
-from QSqlModels.models import ListModel , Agent ,Project , Lead
-
+from QSqlModels.models import (
+    ListModel , 
+    Agent ,
+    Project , 
+    Lead , 
+    session , 
+    RowOfData ,
+    RowOfLiveData
+    )
+# from QSqlModels.orm.db import engine
+from sqlalchemy import text 
+from qmodels import MyMessageBox
 
 
 
@@ -20,6 +30,7 @@ class AddLeadsPage(QtWidgets.QWidget):
         super().__init__(parent)
         self.setObjectName("AddLeadsPage")
         self.resize(783, 607)
+        self.msg = MyMessageBox(self)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.frame = QtWidgets.QFrame(self)
@@ -117,13 +128,14 @@ class AddLeadsPage(QtWidgets.QWidget):
         self.agentbox.currentTextChanged.connect(self.setQuery)
         self.projectbox.currentTextChanged.connect(self.setQuery)
         self.query = ""
+        self.addButton.clicked.connect(self.addLead)
         self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
         self.refeshShortcut.activated.connect(self.refresh)
         self.refresh()
 
     def setQuery(self):
         self.query = f"""
-        SELECT live_data.number AS number , sources.name AS source , agents.name AS agent ,projects.name AS project FROM live_data
+        SELECT live_data.number AS number , sources.name AS source , agents.name AS agent ,projects.name AS project ,live_data.created_date AS date , live_data.created_time AS time  FROM live_data
         JOIN sources ON sources.id = live_data.source_id
         JOIN agents ON agents.id = live_data.agent_id
         JOIN projects ON projects.id = live_data.project_id
@@ -135,17 +147,31 @@ class AddLeadsPage(QtWidgets.QWidget):
             self.query += f"AND agent = \'{self.agentbox.currentText()}\'"
         self.querymodel.setQuery(self.query)
 
-    # def addLead(self):
-    #     lead = Lead(
-    #         number = self.searchbar.lineEdit.text(),
-    #         live_data_id = 1
-    #     )
-
+    def addLead(self):
+        try :
+            agent_id = session.query(Agent).filter(Agent.name == self.agentbox.currentText()).first().id
+            project_id = session.query(Project).filter(Project.name == self.projectbox.currentText()).first().id
+            row = session.query(RowOfLiveData).filter(
+                RowOfLiveData.number.like(f"%{self.searchbar.lineEdit.text()}%") ,
+                RowOfLiveData.agent_id == agent_id ,
+                RowOfLiveData.project_id == project_id ,
+                ).first()
+            lead = Lead(
+                live_data_id = row.id
+            )
+            session.add(lead)
+            session.commit()
+        except AttributeError as attr :
+            print(attr)
+            self.msg.showCritical("Please choose a correct agent and correct project !")
+        except Exception as e :
+            print(e)
     def refresh(self):
         self.listmodelagent.refresh()
         self.listmodelproject.refresh()
         self.querymodel.clear()
         self.searchbar.lineEdit.clear()
+        self.query = ""
 
 
 

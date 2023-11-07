@@ -133,7 +133,7 @@ class SheetsPage(QtWidgets.QWidget):
 
         self.exportBtn.clicked.connect(self.export)
         self.selectablequery = """
-        SELECT data.id AS id, data.name AS name, data.number AS number, sources.name AS source
+        SELECT data.id AS id, data.name AS name, data.number AS number, sources.name AS source 
         FROM data      
         JOIN sources ON sources.id = data.source_id
         """
@@ -175,7 +175,7 @@ class SheetsPage(QtWidgets.QWidget):
         try :
             df = pandas.read_sql_query(self.selectablequery+self.query,con)
             directory = getdir(f"{self.agentbox.currentText()}-{self.projectbox.currentText()}-{len(df)}.xlsx")
-            df.to_excel(directory,index=False)
+            df.to_excel(directory,index=False,columns=['number'])
             agent_id = session.query(Agent).filter(Agent.name==self.agentbox.currentText()).first().id
             project_id = session.query(Project).filter(Project.name==self.projectbox.currentText()).first().id
             source_id = session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id
@@ -199,6 +199,7 @@ class SheetsPage(QtWidgets.QWidget):
         self.listmodelsource.refresh()
         self.querymodel.clear()
         self.countbox.clear()
+        self.query = ""
 
 
 if __name__ == "__main__":
