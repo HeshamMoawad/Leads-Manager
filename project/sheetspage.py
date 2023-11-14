@@ -11,9 +11,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from QSqlModels.models import ListModel
 from QSqlModels.orm.models import Agent , Project , Source ,RowOfData , RowOfLiveData
-from QSqlModels.orm.db import session , con , engine 
+from QSqlModels.orm.db import session  , engine , con
 from qmodels import QueryTableModel , MyMessageBox
-import pandas 
+import pandas , os , datetime
 from sqlalchemy import text
 from utils import getdir
 
@@ -141,6 +141,11 @@ class SheetsPage(QtWidgets.QWidget):
         UPDATE data
         SET taked = 1
         """
+        self.insertquery = """
+        INSERT INTO live_data (agent_id,number,project_id,source_id)
+        VALUES 
+
+        """
         self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
         self.refeshShortcut.activated.connect(self.refresh)
         self.refresh()
@@ -174,24 +179,27 @@ class SheetsPage(QtWidgets.QWidget):
     def export(self):
         try :
             df = pandas.read_sql_query(self.selectablequery+self.query,con)
-            directory = getdir(f"{self.agentbox.currentText()}-{self.projectbox.currentText()}-{len(df)}.xlsx")
+            print(df)
+            now = datetime.datetime.now()
+            directory = getdir(f"{self.agentbox.currentText()}-{self.projectbox.currentText()}-{len(df)}-({now.hour}-{now.minute}).xlsx")
             df.to_excel(directory,index=False,columns=['number'])
             agent_id = session.query(Agent).filter(Agent.name==self.agentbox.currentText()).first().id
             project_id = session.query(Project).filter(Project.name==self.projectbox.currentText()).first().id
             source_id = session.query(Source).filter(Source.name==self.sourcebox.currentText()).first().id
-            df['models'] = df['number'].apply(lambda x : RowOfLiveData(
-                agent_id = agent_id ,
-                project_id = project_id ,
-                source_id = source_id ,
-                number = x 
-             ))
-            session.add_all(df['models'].to_list())
-            session.commit()
+            df['models'] = df['number'].apply(lambda x : f"({agent_id} ,'{x}',{project_id},{source_id}),\n")
+            self.querymodel.setQuery(self.insertquery + "".join(df['models'].to_list())[:-2]+";")
+            first = self.querymodel.submit()
             self.querymodel.setQuery(self.updaterquery + self.query)
-            self.querymodel.submitAll()
-            self.msg.showInfo(f"Successfully Exported to \'{directory}\' and updated")
+            secound = self.querymodel.submit()
+            if first and secound :
+                self.msg.showInfo(f"Successfully Exported to \'{directory}\' and updated")
+            else :
+                print(f"error in {self.querymodel.lastError().text()}")
+
+
         except Exception as e :
             self.msg.showCritical(f"Can't Export\n{e}")
+
 
     def refresh(self):
         self.listmodelagent.refresh()

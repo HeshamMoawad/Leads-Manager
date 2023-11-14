@@ -145,6 +145,10 @@ class AddLeadsPage(QtWidgets.QWidget):
             self.query += f"AND project = \'{self.projectbox.currentText()}\'"
         if self.agentbox.currentText():
             self.query += f"AND agent = \'{self.agentbox.currentText()}\'"
+        self.query += """\nAND live_data.id NOT IN (
+            SELECT live_data_id FROM leads 
+        )"""
+        # print(self.query)
         self.querymodel.setQuery(self.query)
 
     def addLead(self):
@@ -156,11 +160,15 @@ class AddLeadsPage(QtWidgets.QWidget):
                 RowOfLiveData.agent_id == agent_id ,
                 RowOfLiveData.project_id == project_id ,
                 ).first()
-            lead = Lead(
-                live_data_id = row.id
-            )
-            session.add(lead)
-            session.commit()
+            self.querymodel.setQuery(f"""
+            INSERT INTO leads (deleted , live_data_id)
+            VALUES
+            (0 , {row.id});
+            """)
+            if self.querymodel.submitAll():
+                self.msg.showInfo("Success Added !")
+            else :
+                self.msg.showWarning(f"Can't add There are A Problem \n{self.querymodel.lastError().text()}")
         except AttributeError as attr :
             print(attr)
             self.msg.showCritical("Please choose a correct agent and correct project !")

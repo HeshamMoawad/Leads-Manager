@@ -183,6 +183,7 @@ class SearchBar(QtWidgets.QWidget):
 
 class Calendar(QWidget):
     Clicked = pyqtSignal()
+    Closed = pyqtSignal()
     def __init__(self, parent: typing.Optional['QWidget'] = None) -> None:
         super().__init__(parent)
         self.setGeometry(QtCore.QRect(500, 500, 274, 230))
@@ -199,7 +200,7 @@ class Calendar(QWidget):
         self.verticalLayout.addWidget(self.pushButton)
         self.pushButton.clicked.connect(self.Clicked.emit)
         self.pushButton.clicked.connect(self.close)
-        self.value = self.calendarWidget.selectedDate()
+        self.value = QtCore.QDate()
         self.calendarWidget.setHorizontalHeaderFormat(self.calendarWidget.HorizontalHeaderFormat.SingleLetterDayNames)
         self.calendarWidget.setVerticalHeaderFormat(self.calendarWidget.VerticalHeaderFormat.NoVerticalHeader)
         self.calendarWidget.setGridVisible(True)
@@ -209,7 +210,11 @@ class Calendar(QWidget):
 
     def close(self) -> bool:
         self.value = self.calendarWidget.selectedDate()
+        self.Closed.emit()
         return super().close()
+
+    def refresh(self):
+        self.value = QtCore.QDate()
 
 
 class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
@@ -219,6 +224,7 @@ class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
             (r'\bSELECT\b', Qt.GlobalColor.darkRed),
             (r'\bFROM\b', Qt.darkRed),
             (r'\bWHERE\b', Qt.darkRed),
+            (r'\bLIKE\b', Qt.darkRed),
             (r'\bJOIN\b', Qt.darkRed),
             (r'\bLEFT\b', Qt.darkRed),
             (r'\bRIGHT\b', Qt.darkRed),
@@ -232,6 +238,25 @@ class SQLSyntaxHighlighter(QtGui.QSyntaxHighlighter):
             (r'\bLIMIT\b', Qt.darkRed),
             (r'\bOFFSET\b', Qt.darkRed),
             (r'\bAS\b', Qt.darkRed),
+            (r'\bPRAGMA\b', Qt.darkRed),
+            (r'\bIN\b', Qt.darkRed),
+            (r'\bIS\b', Qt.darkRed),
+            (r'\bCASE\b', Qt.darkRed),
+            (r'\bWHEN\b', Qt.darkRed),
+            (r'\bTHEN\b', Qt.darkRed),
+            (r'\bEND\b', Qt.darkRed),
+            (r'\bINSERT\b', Qt.darkRed),
+            (r'\bVALUES\b', Qt.darkRed),
+            (r'\bINTO\b', Qt.darkRed),
+            (r'\bBETWEEN\b', Qt.darkRed),
+            (r'\bCOUNT\b', Qt.GlobalColor.darkBlue),
+            (r'\bmain.table_info\b', Qt.GlobalColor.blue),
+            (r'\bagents\b', Qt.GlobalColor.darkMagenta),
+            (r'\bprojects\b', Qt.GlobalColor.darkMagenta),
+            (r'\bsources\b', Qt.GlobalColor.darkMagenta),
+            (r'\bdata\b', Qt.GlobalColor.darkMagenta),
+            (r'\blive_data\b', Qt.GlobalColor.darkMagenta),
+            (r'\bleads\b', Qt.GlobalColor.darkMagenta),
         ]
 
     def highlightBlock(self, text):
@@ -277,7 +302,44 @@ class SQLCodeEditor(QTextEdit):
         return model
 
     def completionList(self):
-        return ["SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "ON", "AND", "OR", "NOT", "ORDER BY", "GROUP BY"]
+        return [
+            "SELECT", 
+            "FROM", 
+            "WHERE", 
+            "JOIN", 
+            "LEFT", 
+            "RIGHT", 
+            "INNER", 
+            "ON", 
+            "AND", 
+            "OR", 
+            "NOT", 
+            "IN", 
+            "ORDER BY", 
+            "GROUP BY" ,
+            "LIMIT" ,
+            "OFFSET" ,
+            "AS",
+            "PRAGMA",
+            "COUNT" ,
+            "BETWEEN",
+            "LIKE",
+            "CASE",
+            "WHEN",
+            "IS" ,
+            "THEN" ,
+            "INSERT" ,
+            "VALUES" ,
+            "INTO" ,
+            "END"
+            "main.table_info" ,
+            "agents" ,
+            "leads" ,
+            "sources" ,
+            "projects",
+            "data" ,
+            "live_data",
+            ]
 
     def focusInEvent(self, e):
         self.completer.setWidget(self)

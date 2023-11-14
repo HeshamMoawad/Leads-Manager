@@ -9,13 +9,17 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qmodels import Calendar
-
+from qmodels import Calendar ,QueryTableModel , MyMessageBox
+from QSqlModels.models import ListModel , Agent , Project , Source 
+from QSqlModels.orm.db import con
+import pandas 
+from utils import getdirReport
 class ReportPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget=None):
         super().__init__(parent)
         self.setObjectName("ReportPage")
         self.resize(783, 607)
+        self.msg = MyMessageBox(self)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget = QtWidgets.QWidget(self)
@@ -50,6 +54,11 @@ class ReportPage(QtWidgets.QWidget):
         self.calenderLabel = QtWidgets.QLabel(self.frame_4)
         self.horizontalLayout_4.addWidget(self.calenderBtn , alignment=QtCore.Qt.AlignmentFlag.AlignRight)
         self.horizontalLayout_4.addWidget(self.calenderLabel , alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.calenderBtn_2 = QtWidgets.QToolButton(self.frame_4)
+        self.calenderBtn_2.setObjectName("calenderBtn_2")
+        self.calenderLabel_2 = QtWidgets.QLabel(self.frame_4)
+        self.horizontalLayout_4.addWidget(self.calenderBtn_2 , alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+        self.horizontalLayout_4.addWidget(self.calenderLabel_2 , alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
         self.verticalLayout_2.addWidget(self.frame_4)
         self.frame_2 = QtWidgets.QFrame(self.widget)
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -94,6 +103,10 @@ class ReportPage(QtWidgets.QWidget):
         self.calenderBtn.setFixedSize(50,50)
         self.calenderBtn.setIconSize(QtCore.QSize(30,30))
 
+        self.calenderBtn_2.setIcon(QtGui.QIcon("assets\icons\calendar.png"))
+        self.calenderBtn_2.setFixedSize(50,50)
+        self.calenderBtn_2.setIconSize(QtCore.QSize(30,30))
+
         self.exportBtn.setIcon(QtGui.QIcon("assets\icons\export.png"))
         self.exportBtn.setFixedSize(50,50)
         self.exportBtn.setIconSize(QtCore.QSize(30,30))
@@ -105,11 +118,95 @@ class ReportPage(QtWidgets.QWidget):
         self.signture.setObjectName("signture")
         self.signture.setText("MarCode")
 
-        self.calendarwidget = Calendar()
-        self.calenderBtn.clicked.connect(self.calendarwidget.show)
+        self.calendarwidget_from = Calendar()
+        self.calendarwidget_from.pushButton.clicked.connect(lambda : self.calenderLabel.setText(f"From : {self.calendarwidget_from.value.toString('yyyy-M-dd')}"))
+        self.calenderBtn.clicked.connect(self.calendarwidget_from.show)
+
+        self.calendarwidget_to = Calendar()
+        self.calendarwidget_to.pushButton.clicked.connect(lambda : self.calenderLabel_2.setText(f"To : {self.calendarwidget_to.value.toString('yyyy-M-dd')}"))
+        self.calenderBtn_2.clicked.connect(self.calendarwidget_to.show)
+
+        self.listmodelagent = ListModel(Agent)
+        self.agentbox.setModel(self.listmodelagent)
+
+        self.listmodelproject = ListModel(Project)
+        self.projectbox.setModel(self.listmodelproject)
+
+        self.listmodelsource = ListModel(Source)
+        self.sourcebox.setModel(self.listmodelsource)
+
+        self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
+        self.refeshShortcut.activated.connect(self.refresh)
+
+        self.querymodel = QueryTableModel()
+        self.querymodel.lengthChanged.connect(lambda : self.counterLabel.setText(f"Count : {self.querymodel.rowCount(QtCore.QModelIndex())}"))
+        self.tableView.setModel(self.querymodel)
+
+        self.statusbox.addItems(["All","Registered","Not Registered"])
+        self.statusbox.currentTextChanged.connect(self.setQuery)
+        self.agentbox.currentTextChanged.connect(self.setQuery)
+        self.projectbox.currentTextChanged.connect(self.setQuery)
+        self.sourcebox.currentTextChanged.connect(self.setQuery)
+        self.calendarwidget_from.Closed.connect(self.setQuery)
+        self.calendarwidget_to.Closed.connect(self.setQuery)
+        self.exportBtn.clicked.connect(self.export)
+        self.refresh()
 
 
+    def setQuery(self):
+        self.query = """
+        SELECT
+        live_data.number AS number ,
+        agents.name AS agent ,
+        projects.name AS project , 
+        sources.name AS source ,
+        CASE WHEN EXISTS ( SELECT * FROM leads WHERE leads.live_data_id = live_data.id ) THEN 'Registered' ELSE 'Not Registered' END AS register ,
+        live_data.created_date AS date 
+        FROM live_data
+        JOIN sources ON sources.id = live_data.source_id
+        JOIN projects ON projects.id = live_data.project_id
+        JOIN agents ON agents.id = live_data.agent_id
+        """
+        if self.agentbox.currentText():
+            self.query += f"AND agent = '{self.agentbox.currentText()}'"
+        if self.projectbox.currentText():
+            self.query += f"AND project = '{self.projectbox.currentText()}'"
+        if self.sourcebox.currentText():
+            self.query += f"AND source = '{self.sourcebox.currentText()}'"
+        if self.statusbox.currentText() != "All":
+            self.query += f"AND register = '{self.statusbox.currentText()}'"
+        if self.calendarwidget_from.value != QtCore.QDate() and self.calendarwidget_to.value != QtCore.QDate():
+            self.query += f"AND date BETWEEN '{self.calendarwidget_from.value.toString('yyyy-M-dd')}' AND '{self.calendarwidget_to.value.toString('yyyy-M-dd')}'"
+        self.querymodel.setQuery(self.query)
 
+        
+
+    def refresh(self):
+        self.listmodelagent.refresh()
+        self.listmodelproject.refresh()
+        self.listmodelsource.refresh()
+        self.query = ""
+        self.calendarwidget_from.refresh()
+        self.calendarwidget_to.refresh()
+        self.calenderLabel.setText("")
+        self.calenderLabel_2.setText("")
+        self.setQuery()
+
+    def export(self):
+        try :
+            df = pandas.read_sql_query(self.query,con)
+            directory = f"Report"
+            if self.sourcebox.currentText(): directory += f"-{self.sourcebox.currentText()}"
+            if self.projectbox.currentText(): directory += f"-{self.projectbox.currentText()}"
+            if self.agentbox.currentText(): directory += f"-{self.agentbox.currentText()}"
+            if self.statusbox.currentText(): directory += f"-{self.statusbox.currentText()}"
+            if self.calendarwidget_from.value != QtCore.QDate() and self.calendarwidget_to.value != QtCore.QDate(): directory += f"-{self.calendarwidget_from.value.toString('yyyy-M-dd')}-{self.calendarwidget_to.value.toString('yyyy-M-dd')}"
+            directory += ".xlsx"
+            directory = getdirReport(directory)
+            df.to_excel(directory,index=False)
+            self.msg.showInfo(f"Successfully Exported to \'{directory}\'")
+        except Exception as e :
+            self.msg.showCritical(f"Can't Export \n{e}")
 
 
 

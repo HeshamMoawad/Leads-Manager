@@ -87,21 +87,29 @@ class QueryPage(QtWidgets.QWidget):
         self.querymodel = QueryTableModel()
         self.querymodel.lengthChanged.connect(lambda x: self.counterLabel.setText(f"Count : {x}") )
         self.tableView.setModel(self.querymodel)
-        self.textEdit.textChanged.connect(self.setQuery)
+        self.textEdit.textChanged.connect(self.setQueryAsText)
         self.submit.clicked.connect(self.submitAll)
         self.exportBtn.clicked.connect(self.export)
+        self.runBtn.clicked.connect(self.setQuery)
 
-    def setQuery(self):
+    def setQueryAsText(self):
         self.query = self.textEdit.toPlainText()
+    
+    def setQuery(self):
         self.querymodel.setQuery(self.query)
 
     def submitAll(self):
-        self.querymodel.submitAll()
+        self.setQuery()
+        if self.querymodel.submitAll():
+            self.msg.showInfo("Successfully Commited")
+        else :
+            self.msg.showCritical(f"Error in {self.querymodel.lastError().text()}")
+        
 
     def export(self):
         try :
             df = pandas.read_sql_query(self.query,con)
-            directory = f"Query-{datetime.datetime.now().date()}.xlsx"
+            directory = f"Query-{datetime.datetime.now().date()} & {datetime.datetime.now().time().strftime('%H-%M')}.xlsx"
             df.to_excel(directory,index=False)
             self.msg.showInfo(f"Successfully Exported to \'{directory}\'")
         except Exception as e :

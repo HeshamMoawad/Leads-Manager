@@ -245,8 +245,11 @@ class AddPopupData(QtWidgets.QWidget):
                         self.reader.session.query(Source).filter(Source.name == self.comboBox.currentText()).all()[0].id
                         )
                 if sequence :
+                    print("Will adding")
                     self.reader.session.add_all(sequence)
+                    print("Will submit")
                     self.reader.session.commit()
+                    print("Will success")
                     self.msg.showInfo("Success add to database")
                     self.close()
                 else :
