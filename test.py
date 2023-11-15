@@ -257,10 +257,13 @@
 #     window = MyWindow()
 #     window.show()
 #     sys.exit(app.exec_())
-
+###########################################################################################
 # import sys
 # from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 # from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis , QPieSeries 
+# from PyQt5.QtGui import QPainter , QColor
+# from PyQt5.QtCore import Qt
+
 
 # class ChartExample(QMainWindow):
 #     def __init__(self):
@@ -276,16 +279,17 @@
 
 #         # Create a chart
 #         chart = QChart()
-
+#         chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+#         # chart.setTheme(QChart.ChartTheme.ChartThemeDark)
 #         # Create a line series
 #         series = QPieSeries()
-#         series.append("asddd",1.7)
+#         series.setHoleSize(0.30)
+#         slice = series.append("asddd",1.7)
+#         slice.setExploded(True)
+#         slice.setLabelVisible(True)
+
 #         series.append("adwqrqtrtt",3.4)
 #         # series.append(0, 0)
-#         # series.append(1, 1)
-#         # series.append(2, 8)
-#         # series.append(3, 2)
-#         # series.append(4, 4)
 
 #         # # Add the series to the chart
 #         chart.addSeries(series)
@@ -304,6 +308,16 @@
 
 #         # Create a chart view
 #         chart_view = QChartView(chart)
+#         chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+#         # chart_view.setStyleSheet("""
+#         # QGraphicsView{
+#         # background-color:red;
+#         # border:2px solid blue;
+#         # border-radius:20px;
+#         # }
+        
+#         # """)
+
 #         layout.addWidget(chart_view)
 
 # if __name__ == "__main__":
@@ -313,15 +327,144 @@
 #     sys.exit(app.exec_())
 
 
+# import sys
+# from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget , QPushButton
+# from PyQt5.QtChart import QChart, QChartView, QBarSet, QBarSeries, QBarCategoryAxis, QValueAxis , QPieSlice
+# from PyQt5.QtCore import Qt
 
-import pandas , sqlite3
-from project.utils import filterNumber
+# class BarChartExample(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
 
-con = sqlite3.connect("Data\database.db")
+#         self.setGeometry(100, 100, 800, 600)
+#         self.setWindowTitle("Basic Bar Chart Example")
 
-df = pandas.read_sql_query("SELECT * FROM data" , con)
-print(df)
-df.drop_duplicates(inplace=True)
-df.to_sql('data',con,if_exists='replace')
-print(df)
+#         central_widget = QWidget(self)
+#         self.setCentralWidget(central_widget)
 
+#         layout = QVBoxLayout(central_widget)
+
+#         # Create a bar chart
+#         chart = QChart()
+#         chart.setTitle("Sample Bar Chart")
+#         chart.setAnimationOptions(QChart.AnimationOption.AllAnimations)
+
+#         # Create a bar series
+#         series = QBarSeries()
+
+#         # Create a bar set with data
+#         bar_set = QBarSet("Values")
+#         bar_set << 1 << 2 << 3 << 4 << 5
+
+#         # Add the bar set to the series
+#         series.append(bar_set)
+
+#         # Add the series to the chart
+#         chart.addSeries(series)
+
+
+#         # Create the X axis
+#         axis_x = QBarCategoryAxis()
+#         axis_x.append("data")
+#         chart.addAxis(axis_x, Qt.AlignBottom)
+#         chart.setAxisX(axis_x, series)
+
+#         # Create the Y axis
+#         axis_y = QValueAxis()
+#         chart.addAxis(axis_y, Qt.AlignLeft)
+#         chart.setAxisY(axis_y, series)
+
+#         # Create a chart view
+#         chart_view = QChartView(chart)
+#         layout.addWidget(chart_view)
+#         btn = QPushButton(central_widget)
+#         btn.clicked.connect(lambda : chart.removeSeries(series))
+#         btn.clicked.connect(lambda : chart.addSeries(series))
+#         layout.addWidget(btn)
+
+        
+
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     window = BarChartExample()
+#     window.show()
+#     sys.exit(app.exec_())
+
+
+from PyQt5.QtChart import QLineSeries, QValueAxis, QChart, QChartView , QBarCategoryAxis
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+
+import sys
+from datetime import datetime
+
+class QChartWidget(QChartView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def getLineChart(self, title: str, data: dict) -> QChart:
+        chart = QChart()
+        chart.setTitle(title)
+
+
+        line_series = QLineSeries()
+        for month, leads in data.items():
+            timestamp = datetime.strptime(month, '%b').month  # Convert month abbreviation to number
+            line_series.append(timestamp, leads)
+            print(timestamp, leads)
+
+        chart.addSeries(line_series)
+
+        axis_x = QBarCategoryAxis()
+        axis_x.setCategories(data.keys())
+        chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
+        chart.setAxisX(axis_x,line_series)
+
+        axis_y = QValueAxis()
+        chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+        chart.setAxisY(axis_y,line_series)
+
+
+        return chart
+
+
+
+class LineChartExample(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle("Line Chart Example")
+
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+
+        layout = QVBoxLayout(central_widget)
+
+        # Example data with months and leads
+        data = {
+            'Jan': 10,
+            'Feb': 15,
+            'Mar': 8,
+            'Apr': 20,
+            'May': 12,
+            'Jun': 25,
+            'Jul': 18,
+            'Aug': 22,
+            'Sep': 30,
+            'Oct': 15,
+            'Nov': 28,
+            'Dec': 20,
+        }
+
+        chart_widget = QChartWidget()
+        chart = chart_widget.getLineChart("Leads per Month", data)
+        chart_view = QChartView(chart)
+        layout.addWidget(chart_view)
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = LineChartExample()
+    window.show()
+    sys.exit(app.exec_())
