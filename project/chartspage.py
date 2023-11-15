@@ -9,7 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from qcharts import QChartWidget
+from QSqlModels.orm import session , Lead , RowOfLiveData , RowOfData , Source
 
 class ChartsPage(QtWidgets.QWidget):
     def __init__(self,parent=None):
@@ -50,13 +51,13 @@ class ChartsPage(QtWidgets.QWidget):
         self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.leadsCount = QtWidgets.QLabel(self.countFrame)
-        self.leadsCount.setObjectName("leadsCount")
+        self.leadsCount.setObjectName("Counters")
         self.horizontalLayout_4.addWidget(self.leadsCount, 0, QtCore.Qt.AlignHCenter)
         self.livedataCount = QtWidgets.QLabel(self.countFrame)
-        self.livedataCount.setObjectName("livedataCount")
+        self.livedataCount.setObjectName("Counters")
         self.horizontalLayout_4.addWidget(self.livedataCount, 0, QtCore.Qt.AlignHCenter)
         self.dataCount = QtWidgets.QLabel(self.countFrame)
-        self.dataCount.setObjectName("dataCount")
+        self.dataCount.setObjectName("Counters")
         self.horizontalLayout_4.addWidget(self.dataCount, 0, QtCore.Qt.AlignHCenter)
         self.verticalLayout_3.addWidget(self.countFrame)
         self.verticalLayout.addWidget(self.frame)
@@ -76,12 +77,43 @@ class ChartsPage(QtWidgets.QWidget):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_2.setSpacing(1)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.secoundWidget = QtWidgets.QWidget(self.frame_3)
-        self.secoundWidget.setObjectName("secoundWidget")
-        self.horizontalLayout_2.addWidget(self.secoundWidget)
-        self.firstWidget = QtWidgets.QWidget(self.frame_3)
-        self.firstWidget.setObjectName("firstWidget")
-        self.horizontalLayout_2.addWidget(self.firstWidget)
+        self.dounatchart = QChartWidget(self.frame_3)
+        # dounat = self.dounatchart.getDounatChart("",{
+        #     'Jan': 10,
+        #     'Feb': 15,
+        #     'Mar': 8,
+        #     'Apr': 20,
+        #     'May': 12,
+        #     'Jun': 25,
+        #     'Jul': 18,
+        #     'Aug': 22,
+        #     'Sep': 30,
+        #     'Oct': 15,
+        #     'Nov': 28,
+        #     'Dec': 20,
+        # })
+        # self.dounatchart.setChart(dounat)
+        self.horizontalLayout_2.addWidget(self.dounatchart)
+        self.barchart = QChartWidget(self.frame_3)
+        # dounat = self.barchart.getBarChart("Test bar",{
+        #     'Jan': 10,
+        #     'Feb': 15,
+        #     'Mar': 8,
+        #     'Apr': 20,
+        #     'May': 12,
+        #     'Jun': 25,
+        #     'Jul': 18,
+        #     'Aug': 22,
+        #     'Sep': 30,
+        #     'Oct': 15,
+        #     'Nov': 28,
+        #     'Dec': 20,
+        # })
+        # self.barchart.setChart(dounat)
+        self.horizontalLayout_2.addWidget(self.barchart)
+        self.horizontalLayout_2.setStretch(0,3)
+        self.horizontalLayout_2.setStretch(1,5)
+
         self.verticalLayout_2.addWidget(self.frame_3)
         self.frame_4 = QtWidgets.QFrame(self.frame_2)
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -91,20 +123,57 @@ class ChartsPage(QtWidgets.QWidget):
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_3.setSpacing(1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.fourthWidget = QtWidgets.QWidget(self.frame_4)
-        self.fourthWidget.setObjectName("fourthWidget")
-        self.horizontalLayout_3.addWidget(self.fourthWidget)
-        self.thirdWidget = QtWidgets.QWidget(self.frame_4)
-        self.thirdWidget.setObjectName("thirdWidget")
-        self.horizontalLayout_3.addWidget(self.thirdWidget)
+        self.linechart = QChartWidget(self.frame_4)
+        # line = self.linechart.getLineChart("Test line",{
+        #     'Jan': 10,
+        #     'Apr': 20,
+        #     'May': 12,
+        #     'Jun': 25,
+        #     'Sep': 30,
+        #     'Oct': 15,
+        #     'Nov': 28,
+        #     'Dec': 20,
+        #     'd': 20,
+        # })
+        # self.linechart.setChart(line)
+        self.horizontalLayout_3.addWidget(self.linechart)
         self.verticalLayout_2.addWidget(self.frame_4)
         self.verticalLayout.addWidget(self.frame_2)
         self.verticalLayout.setStretch(0, 1)
-        self.verticalLayout.setStretch(1, 7)
+        self.verticalLayout.setStretch(1, 9)
         self.leadsLabel.setText("Leads")
         self.livedataLabel.setText("Live Data")
         self.dataLabel.setText("Total Data") 
-        
+
+        self.leadsCount.setMinimumWidth(100)
+        self.livedataCount.setMinimumWidth(100)
+        self.dataCount.setMinimumWidth(100)
+        self.leadsCount.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.livedataCount.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.dataCount.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.leadsLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
+        self.livedataLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
+        self.dataLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
+
+        self.setCounters()
+        self.setDounat()
+
+    def setCounters(self):
+        leadsCount = session.query(Lead).count()
+        livedatacount = session.query(RowOfLiveData).count()
+        totaldatacount = session.query(RowOfData).count()
+        self.leadsCount.setText(f"{leadsCount}")
+        self.livedataCount.setText(f"{livedatacount}")
+        self.dataCount.setText(f"{totaldatacount}")
+
+    def setDounat(self):
+        data = {}
+        sources = session.query(Source).all()
+        for source in sources :
+            data.update({source.name:session.query(RowOfLiveData).filter(RowOfLiveData.id.in_(session.query(Lead.live_data_id))).filter(RowOfLiveData.source_id == source.id).count()})
+        chart = self.dounatchart.getDounatChart("Sources",data)
+        self.dounatchart.setChart(chart)
+    
 
 
 

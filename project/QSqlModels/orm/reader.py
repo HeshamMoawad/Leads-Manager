@@ -2,7 +2,7 @@ import pandas , typing , numpy , re
 from .db import session 
 from .models import RowOfData
 from PyQt5.QtCore import pyqtSignal, QThread
-
+from utils import filterNumber
 
 class ReadExcelIntoDBModel(QThread):
     Faild = pyqtSignal()
@@ -25,6 +25,7 @@ class ReadExcelIntoDBModel(QThread):
             self.data.dropna(inplace=True)
             self.data[self.columnName] = self.data[self.columnName].apply(str)
             self.data[self.columnName] = self.data[self.columnName].apply(self.convertToCountryCodeStracture)
+            self.data[self.columnName] = self.data[self.columnName].apply(filterNumber)
             self.data.dropna(inplace=True)
             print(self.data)
             self.data["is_exist"] = self.data[self.columnName].apply(self.checkExistValue)

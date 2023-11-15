@@ -26,18 +26,22 @@ from PyQt5.QtSql import QSqlDatabase
 
 
 class MainWindow(MyQMainWindow):
+
     def SetupUi(self):
+        screen = QtWidgets.QDesktopWidget().screenGeometry(0)
+        screen_height = screen.height()
+        screen_width = screen.width()
         self.QSS = open('assets\qss\main.qss','r').read()
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("Data\database.db")
         self.db.open()
         self.setObjectName("MainWindow")
-        self.resize(800, 700)
+        self.resize(int(screen_width*0.8)+1, int(screen_height*0.8)+1)
         self.setFrameLess()
         self.setBackgroundTransparent()
         self.mainWidget.setStyleSheet(self.QSS)
         self.widget = QtWidgets.QWidget(self.mainWidget)
-        self.widget.setGeometry(QtCore.QRect(0, -1, 801, 701))
+        self.widget.setGeometry(QtCore.QRect(0, -1, int(screen_width*0.75), int(screen_height*0.75)))
         self.widget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)

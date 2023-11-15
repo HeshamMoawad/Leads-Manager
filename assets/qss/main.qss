@@ -123,7 +123,7 @@ QTableView{
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
     border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 80px; 
+    border-bottom-left-radius: 0px; 
 }
 #secoundWidget {
     background-color: transparent;
@@ -131,27 +131,22 @@ QTableView{
     border-bottom:1px solid black;
     border-top-right-radius: 0px;
     border-top-left-radius: 0px;
-    border-bottom-right-radius: 80px;
+    border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px; 
 }
 #thirdWidget {
     background-color: transparent;
-    border-left:1px solid black;
     border-top:1px solid black;
     border-top-right-radius: 0px;
-    border-top-left-radius: 80px;
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px; 
-}
-#fourthWidget {
-    background-color: transparent;
-    border-right:1px solid black;
-    border-top:1px solid black;
-    border-top-right-radius: 80px;
     border-top-left-radius: 0px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px; 
 }
 
 
+/* #Counters{
+    background-color:#ededed;
+    border:1px solid #ededed;
+    border-radius:10px;
 
+} */
