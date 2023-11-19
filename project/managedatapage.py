@@ -16,14 +16,19 @@ from popups import (
     ViewDBTable ,
     AddPopupData
     )
-from QSqlModels.orm import session , Agent
+from QSqlModels.orm import session , Agent 
+from QSqlModels.orm.db import con
+import pandas
+from utils import getdir
+from qmodels import MyMessageBox
 
-
+EXPORTS_VALUES = ["Agents","Projects","Sources","Data","Leads"]
 class ManagerDataPage(QtWidgets.QWidget):
     def __init__(self, parent:QtWidgets.QWidget=None , css:str=""):
         super().__init__(parent)
         self.setObjectName("ManagerData")
         self.resize(783, 607)
+        self.msg = MyMessageBox(self)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.widget = QtWidgets.QWidget(self)
@@ -240,14 +245,7 @@ class ManagerDataPage(QtWidgets.QWidget):
 
         self.exportbox.setFixedHeight(40)
 
-        font = QtGui.QFont()
-        font.setItalic(True)
-        font.setPointSize(24)
-        font.setFamily("Narkisim")
-        self.sentenceLabel.setFont(font)
         self.sentenceLabel.setText("Make Your Life a Story Worth Telling or Die يسطاا")
-        font.setPointSize(10)
-        self.signture.setFont(font)
         self.signture.setText("MarCode")
         self.agentsLabel.setText("Agents")
         self.sourcesLabel.setText("Sources")
@@ -256,9 +254,9 @@ class ManagerDataPage(QtWidgets.QWidget):
         self.goodAgents.setText("Active : ")
         self.goodProjects.setText("Active : ")
         self.goodSources.setText("Active : ")
-        self.deletedAgents.setText("Not Active : ")
-        self.deletedProjects.setText("Not Active : ")
-        self.deletedSources.setText("Not Active : ")
+        self.deletedAgents.setText("Not Active : 0")
+        self.deletedProjects.setText("Not Active : 0")
+        self.deletedSources.setText("Not Active : 0")
 
         self.addAgentsBtn.setFixedSize(24,24)
         self.addDataBtn.setFixedSize(24,24)
@@ -276,7 +274,8 @@ class ManagerDataPage(QtWidgets.QWidget):
         self.showSourcesBtn.setFixedSize(24,24)
         self.showDataBtn.setFixedSize(24,24)
         
-        self.exportbox.addItems(["Agents","Projects","Sources","Data","Leads"])
+        self.exportbox.addItems(EXPORTS_VALUES)
+        self.exportBtn.clicked.connect(self.export)
 
         self.addpopupagent = AddPopupAgents()
         self.addAgentsBtn.clicked.connect(self.addpopupagent.show)
@@ -296,6 +295,52 @@ class ManagerDataPage(QtWidgets.QWidget):
         
         self.adddatapopup = AddPopupData()
         self.addDataBtn.clicked.connect(self.adddatapopup.show)
+
+        
+
+
+    def export(self):
+        current = self.exportbox.currentText()
+        if current == EXPORTS_VALUES[0] :
+            self.exportTo('agents',"Agents.xlsx")
+        elif current == EXPORTS_VALUES[1] :
+            self.exportTo('projects',"Projects.xlsx")
+        elif current == EXPORTS_VALUES[2] :
+            self.exportTo('sources',"Sources.xlsx")
+        elif current == EXPORTS_VALUES[3] :
+            self.exportTo('',"Data.xlsx" , query="""
+            SELECT 
+            data.id , 
+            data.deleted ,
+            data.name , 
+            data.taked,
+            data.number,
+            sources.name,
+            data.created_date,
+            data.created_time FROM data 
+            JOIN sources on data.source_id = sources.id
+            """)
+        elif current == EXPORTS_VALUES[4]:
+            self.exportTo("","Leads.xlsx",query="""
+            SELECT 
+            live_data.number as number ,
+            agents.name as agent ,
+            projects.name as project ,
+            sources.name as source ,
+            live_data.created_date as sended_at ,
+            leads.created_date as regestired_at 
+            FROM leads
+            JOIN live_data on live_data.id = leads.live_data_id
+            JOIN agents on agents.id = live_data.agent_id
+            JOIN sources on sources.id = live_data.source_id
+            JOIN projects on projects.id = live_data.project_id
+            """)
+    def exportTo(self,table_name:str,export_name,query:str="SELECT * FROM "):
+        query += table_name
+        df = pandas.read_sql_query(query,con)
+        directory = getdir(export_name)
+        df.to_excel(directory,index=False)
+        self.msg.showInfo(f"successfully exported {query}\nAt => {directory}")
 
 
 if __name__ == "__main__":

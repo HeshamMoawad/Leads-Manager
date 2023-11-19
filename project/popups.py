@@ -148,7 +148,6 @@ class ViewDBTable(QtWidgets.QTableView):
         self.mymodel.submitAll()
         return super().closeEvent(a0)
 
-
 class AddPopupData(QtWidgets.QWidget):
     def __init__(self,parent:QtWidgets.QWidget=None):
         super().__init__(parent)

@@ -13,9 +13,10 @@ if os.path.isfile(jornal_path):
         os.remove(jornal_path)
     except Exception as e:
         print(e)
+        # input("Press Enter to exit : ")
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qmodels import MyQMainWindow
+from qmodels import MyQMainWindow , MyMessageBox
 from addleadspage import AddLeadsPage
 from sheetspage import SheetsPage
 from managedatapage import ManagerDataPage
@@ -29,20 +30,22 @@ class MainWindow(MyQMainWindow):
 
     def SetupUi(self):
         screen = QtWidgets.QDesktopWidget().screenGeometry(0)
-        screen_height = screen.height()
-        screen_width = screen.width()
+        screen_height = int(screen.height()*0.8)
+        screen_width = int(screen.width()*0.8)
         self.QSS = open('assets\qss\main.qss','r').read()
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("Data\database.db")
         self.db.open()
         self.setObjectName("MainWindow")
-        self.resize(int(screen_width*0.8)+1, int(screen_height*0.8)+1)
+        self.resize(screen_width+1, screen_height+1)
+        self.move(int((screen.width()-screen_width)/2),int((screen.height()-screen_height)/2))
         self.setFrameLess()
         self.setBackgroundTransparent()
         self.mainWidget.setStyleSheet(self.QSS)
         self.widget = QtWidgets.QWidget(self.mainWidget)
-        self.widget.setGeometry(QtCore.QRect(0, -1, int(screen_width*0.75), int(screen_height*0.75)))
+        self.widget.setGeometry(QtCore.QRect(0, -1, screen_width, screen_height))
         self.widget.setObjectName("centralwidget")
+        self.msg = MyMessageBox(self)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")

@@ -5,6 +5,14 @@
     border-radius:25px;
 }
 
+QLabel{
+    font: 14pt "Narkisim";
+
+}
+#signture{
+    font: 12pt "Narkisim";
+}
+
 
 QToolButton{
     background-color:#ededed;
@@ -24,6 +32,7 @@ QTextEdit{
 
 
 QComboBox {
+    font: 12pt "Narkisim";
     background-color:#ededed;
     border:1px solid #ededed;
     border-radius:5px;
@@ -31,12 +40,16 @@ QComboBox {
 
 
 QComboBox:drop-down{
+    font: 12pt "Narkisim";
+
     background-color:#ededed;
     border:1px solid #ededed;
     border-radius:5px;
 }
 
 QComboBox QAbstractItemView{
+    font: 12pt "Narkisim";
+
     background-color:#ededed;
     border:1px solid #ededed;
     border-radius:5px;

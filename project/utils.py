@@ -21,7 +21,8 @@ def getdirReport(*path)->str:
     else :
         os.makedirs(directory)
         return os.path.join(directory,*path)
-        
+
+
 def increasement(array: list) -> list:
     array += [0]
     return array

@@ -11,6 +11,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qcharts import QChartWidget
 from QSqlModels.orm import session , Lead , RowOfLiveData , RowOfData , Source
+import calendar
+from datetime import datetime , timedelta
 
 class ChartsPage(QtWidgets.QWidget):
     def __init__(self,parent=None):
@@ -78,42 +80,11 @@ class ChartsPage(QtWidgets.QWidget):
         self.horizontalLayout_2.setSpacing(1)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.dounatchart = QChartWidget(self.frame_3)
-        # dounat = self.dounatchart.getDounatChart("",{
-        #     'Jan': 10,
-        #     'Feb': 15,
-        #     'Mar': 8,
-        #     'Apr': 20,
-        #     'May': 12,
-        #     'Jun': 25,
-        #     'Jul': 18,
-        #     'Aug': 22,
-        #     'Sep': 30,
-        #     'Oct': 15,
-        #     'Nov': 28,
-        #     'Dec': 20,
-        # })
-        # self.dounatchart.setChart(dounat)
         self.horizontalLayout_2.addWidget(self.dounatchart)
         self.barchart = QChartWidget(self.frame_3)
-        # dounat = self.barchart.getBarChart("Test bar",{
-        #     'Jan': 10,
-        #     'Feb': 15,
-        #     'Mar': 8,
-        #     'Apr': 20,
-        #     'May': 12,
-        #     'Jun': 25,
-        #     'Jul': 18,
-        #     'Aug': 22,
-        #     'Sep': 30,
-        #     'Oct': 15,
-        #     'Nov': 28,
-        #     'Dec': 20,
-        # })
-        # self.barchart.setChart(dounat)
         self.horizontalLayout_2.addWidget(self.barchart)
         self.horizontalLayout_2.setStretch(0,3)
         self.horizontalLayout_2.setStretch(1,5)
-
         self.verticalLayout_2.addWidget(self.frame_3)
         self.frame_4 = QtWidgets.QFrame(self.frame_2)
         self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -124,18 +95,6 @@ class ChartsPage(QtWidgets.QWidget):
         self.horizontalLayout_3.setSpacing(1)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.linechart = QChartWidget(self.frame_4)
-        # line = self.linechart.getLineChart("Test line",{
-        #     'Jan': 10,
-        #     'Apr': 20,
-        #     'May': 12,
-        #     'Jun': 25,
-        #     'Sep': 30,
-        #     'Oct': 15,
-        #     'Nov': 28,
-        #     'Dec': 20,
-        #     'd': 20,
-        # })
-        # self.linechart.setChart(line)
         self.horizontalLayout_3.addWidget(self.linechart)
         self.verticalLayout_2.addWidget(self.frame_4)
         self.verticalLayout.addWidget(self.frame_2)
@@ -154,9 +113,18 @@ class ChartsPage(QtWidgets.QWidget):
         self.leadsLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
         self.livedataLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
         self.dataLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
+        self.refresh()
 
+        self.refeshShortcut = QtWidgets.QShortcut('Ctrl+R',self)
+        self.refeshShortcut.activated.connect(self.refresh)
+
+
+
+    def refresh(self):
         self.setCounters()
         self.setDounat()
+        self.setBar()
+        self.setLine()
 
     def setCounters(self):
         leadsCount = session.query(Lead).count()
@@ -174,7 +142,31 @@ class ChartsPage(QtWidgets.QWidget):
         chart = self.dounatchart.getDounatChart("Sources",data)
         self.dounatchart.setChart(chart)
     
+    def setBar(self):
+        data = {}
+        for index in range(1,13):
+            name = calendar.month_abbr[index]
+            last_day = calendar.monthrange(2023,index)[1]
+            date_from = datetime(datetime.now().year,index,1) - timedelta(days=1)
+            date_to = datetime(datetime.now().year,index,last_day)
+            count = session.query(Lead).filter(Lead.created_date.between(date_from,date_to)).count()
+            data.update({name:count})
+        chart = self.dounatchart.getBarChart("Leads",data)
+        self.barchart.setChart(chart)
 
+    def setLine(self):
+        data = {}
+        for index in range(1,13):
+            name = calendar.month_abbr[index]
+            last_day = calendar.monthrange(2023,index)[1]
+            date_from = datetime(datetime.now().year,index,1) - timedelta(days=1)
+            date_to = datetime(datetime.now().year,index,last_day)
+            live_count = session.query(RowOfLiveData).filter(RowOfLiveData.created_date.between(date_from,date_to)).count()
+            leads_count = session.query(Lead).filter(Lead.created_date.between(date_from,date_to)).count()
+            percentage = (leads_count/live_count)*100 if live_count != 0 else 0
+            data.update({name:percentage})
+        chart = self.dounatchart.getLineChart("Leads",data)
+        self.linechart.setChart(chart)
 
 
 if __name__ == "__main__":

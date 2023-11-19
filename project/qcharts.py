@@ -50,8 +50,10 @@ class QChartWidget(QChartView):
         for label , value in data.items():
             slice = series.append(label,float(value))
             slice.clicked.connect(self.explodeSlice)
+            slice.setLabel(f"{label} : {int(value)}")
             if slice.value() > highslice.value() :
                 highslice = slice
+
         chart.addSeries(series)
         return chart
 
@@ -80,6 +82,8 @@ class QChartWidget(QChartView):
         chart.addAxis(axis_x,Qt.AlignmentFlag.AlignBottom)
         chart.setAxisX(axis_x,series)
         axis_y = QValueAxis()
+        axis_y.setTickCount(10)
+        axis_y.setLabelFormat("%.0f")
         chart.addAxis(axis_y,Qt.AlignmentFlag.AlignLeft)
         chart.setAxisY(axis_y,series)
         return chart

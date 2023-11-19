@@ -391,80 +391,157 @@
 #     sys.exit(app.exec_())
 
 
-from PyQt5.QtChart import QLineSeries, QValueAxis, QChart, QChartView , QBarCategoryAxis
+# from PyQt5.QtChart import QLineSeries, QValueAxis, QChart, QChartView , QBarCategoryAxis
+# from PyQt5.QtCore import Qt
+# from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+
+# import sys
+# from datetime import datetime
+
+# class QChartWidget(QChartView):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+
+#     def getLineChart(self, title: str, data: dict) -> QChart:
+#         chart = QChart()
+#         chart.setTitle(title)
+
+
+#         line_series = QLineSeries()
+#         for month, leads in data.items():
+#             timestamp = datetime.strptime(month, '%b').month  # Convert month abbreviation to number
+#             line_series.append(timestamp, leads)
+#             print(timestamp, leads)
+
+#         chart.addSeries(line_series)
+
+#         axis_x = QBarCategoryAxis()
+#         axis_x.setCategories(data.keys())
+#         chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
+#         chart.setAxisX(axis_x,line_series)
+
+#         axis_y = QValueAxis()
+#         chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+#         chart.setAxisY(axis_y,line_series)
+
+
+#         return chart
+
+
+
+# class LineChartExample(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+
+#         self.setGeometry(100, 100, 800, 600)
+#         self.setWindowTitle("Line Chart Example")
+
+#         central_widget = QWidget(self)
+#         self.setCentralWidget(central_widget)
+
+#         layout = QVBoxLayout(central_widget)
+
+#         # Example data with months and leads
+#         data = {
+#             'Jan': 10,
+#             'Feb': 15,
+#             'Mar': 8,
+#             'Apr': 20,
+#             'May': 12,
+#             'Jun': 25,
+#             'Jul': 18,
+#             'Aug': 22,
+#             'Sep': 30,
+#             'Oct': 15,
+#             'Nov': 28,
+#             'Dec': 20,
+#         }
+
+#         chart_widget = QChartWidget()
+#         chart = chart_widget.getLineChart("Leads per Month", data)
+#         chart_view = QChartView(chart)
+#         layout.addWidget(chart_view)
+
+
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     window = LineChartExample()
+#     window.show()
+#     sys.exit(app.exec_())
+
+
+
+# import calendar 
+# from datetime import datetime
+
+
+
+# print(calendar.monthrange(2023,1))
+# x = calendar.month_abbr[1]
+# print(x)
+
+# data = {}
+
+# for index in range(1,13):
+#     print(index)
+#     name = calendar.month_abbr[index]
+#     last_day = calendar.monthrange(2023,index)[1]
+#     date_from = datetime(datetime.now().year,index,1)
+#     date_to = datetime(datetime.now().year,index,last_day)
+#     data.update({name:[date_from,date_to]})
+
+# print(data)
+
+
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtChart import QValueAxis, QLineSeries , QChartView, QChart
+from PyQt5.QtGui import QPainter
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 import sys
-from datetime import datetime
 
-class QChartWidget(QChartView):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def getLineChart(self, title: str, data: dict) -> QChart:
-        chart = QChart()
-        chart.setTitle(title)
-
-
-        line_series = QLineSeries()
-        for month, leads in data.items():
-            timestamp = datetime.strptime(month, '%b').month  # Convert month abbreviation to number
-            line_series.append(timestamp, leads)
-            print(timestamp, leads)
-
-        chart.addSeries(line_series)
-
-        axis_x = QBarCategoryAxis()
-        axis_x.setCategories(data.keys())
-        chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        chart.setAxisX(axis_x,line_series)
-
-        axis_y = QValueAxis()
-        chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
-        chart.setAxisY(axis_y,line_series)
-
-
-        return chart
-
-
-
-class LineChartExample(QMainWindow):
+class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setGeometry(100, 100, 800, 600)
-        self.setWindowTitle("Line Chart Example")
+        # Create a chart
+        chart = QChart()
 
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
+        # Create a value axis
+        axisY = QValueAxis()
 
-        layout = QVBoxLayout(central_widget)
+        # Set the tick count to control the number of ticks on the axis
+        axisY.setTickCount(10)
 
-        # Example data with months and leads
-        data = {
-            'Jan': 10,
-            'Feb': 15,
-            'Mar': 8,
-            'Apr': 20,
-            'May': 12,
-            'Jun': 25,
-            'Jul': 18,
-            'Aug': 22,
-            'Sep': 30,
-            'Oct': 15,
-            'Nov': 28,
-            'Dec': 20,
-        }
+        # Set the label format to display integers
+        axisY.setLabelFormat("%.0f")
 
-        chart_widget = QChartWidget()
-        chart = chart_widget.getLineChart("Leads per Month", data)
+        # Add the axis to the chart
+
+        # Create a series with some data
+        series = QLineSeries()
+        series.append(1, 1)
+        series.append(2, 4)
+        series.append(3, 9)
+        series.append(4, 16)
+        series.append(5, 25)
+
+        # Add the series to the chart
+        chart.addSeries(series)
+        chart.setAxisY(axisY,series)
+
+        # # Attach the series to the axis
+        # chart.setAxisY(axisY, series)
+
+        # Create a chart view and set the chart on it
         chart_view = QChartView(chart)
-        layout.addWidget(chart_view)
+        chart_view.setRenderHint(QPainter.Antialiasing)
 
+        # Set the central widget
+        self.setCentralWidget(chart_view)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = LineChartExample()
+    window = MyWindow()
     window.show()
     sys.exit(app.exec_())

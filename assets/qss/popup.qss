@@ -5,6 +5,10 @@ QWidget{
     border-radius:25px;
 }
 
+QLabel{
+    font: 14pt "Narkisim";
+
+}
 
 QToolButton{
     background-color:#ededed;
